@@ -1,0 +1,14 @@
+[gd_resource type="ConfigFile" format=3]
+
+[application]
+config/name="The Core Descent Prototipo"
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.3")
+
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
