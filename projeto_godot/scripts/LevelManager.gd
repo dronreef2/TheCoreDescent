@@ -169,6 +169,17 @@ func load_available_levels():
 			"estimated_time": 140,
 			"is_unlocked": false,
 			"is_completed": false
+		},
+		{
+			"id": 11,
+			"name": "A Fábrica Cloud",
+			"description": "DevOps & Cloud: AWS, Docker, Kubernetes, CI/CD, Terraform, Jenkins",
+			"scene_path": "res://codigo/Level11.gd",
+			"required_concepts": ["lógica_básica", "orientação_objetos", "web_development", "mobile_development", "data_science", "emerging_technologies", "game_development"],
+			"difficulty": "Mestre DevOps",
+			"estimated_time": 160,
+			"is_unlocked": false,
+			"is_completed": false
 		}
 	]
 	
@@ -252,9 +263,9 @@ func setup_player_for_level(level_id: int):
 		5:
 			player_controller.enable_abilities(true)
 			player_controller.set_available_languages(["cpp", "java", "python", "csharp", "javascript"])
-		6, 7, 8, 9, 10:
+		6, 7, 8, 9, 10, 11:
 			player_controller.enable_abilities(true)
-			player_controller.set_available_languages(["cpp", "java", "python", "csharp", "javascript", "typescript", "swift", "kotlin"])
+			player_controller.set_available_languages(["cpp", "java", "python", "csharp", "javascript", "typescript", "swift", "kotlin", "go", "rust", "php", "ruby"])
 
 func connect_level_signals(level: Node):
 	"""Conecta sinais do nível atual"""

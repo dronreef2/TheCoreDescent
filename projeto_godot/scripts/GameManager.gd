@@ -276,12 +276,17 @@ func setup_level_select():
 func create_level_buttons(parent: GridContainer):
 	"""Cria botões para seleção de níveis"""
 	var levels_data = [
-		{"num": 1, "name": "Teste Rápido", "desc": "Block-based Logic", "unlocked": true},
-		{"num": 2, "name": "A Torre de Marfim", "desc": "High-Level Languages", "unlocked": false},
-		{"num": 3, "name": "A Forja de Ponteiros", "desc": "C/C++ Memory Management", "unlocked": false},
-		{"num": 4, "name": "O Salão dos Mnemônicos", "desc": "Assembly Optimization", "unlocked": false},
-		{"num": 5, "name": "O Abismo Binário", "desc": "Machine Language", "unlocked": false},
-		{"num": 6, "name": "O Núcleo de Silício", "desc": "Hardware Logic", "unlocked": false}
+		{"num": 1, "name": "A Torre de Marfim", "desc": "Conceitos básicos de lógica", "unlocked": true},
+		{"num": 2, "name": "A Forja de Ponteiros", "desc": "Ponteiros e memória em C++", "unlocked": false},
+		{"num": 3, "name": "A Biblioteca de Objetos", "desc": "Orientação a objetos", "unlocked": false},
+		{"num": 4, "name": "A Arquitetura Concorrente", "desc": "Concorrência e paralelismo", "unlocked": false},
+		{"num": 5, "name": "O Servidor Web", "desc": "Desenvolvimento Web e APIs", "unlocked": false},
+		{"num": 6, "name": "O Aplicativo Móvel", "desc": "Mobile Development", "unlocked": false},
+		{"num": 7, "name": "O Data Center", "desc": "Data Science e ML", "unlocked": false},
+		{"num": 8, "name": "O Laboratório de Testes", "desc": "Testing e QA Automation", "unlocked": false},
+		{"num": 9, "name": "As Fronteiras da Tecnologia", "desc": "IoT, Blockchain, Quantum", "unlocked": false},
+		{"num": 10, "name": "O Estúdio de Jogos", "desc": "Unity, Unreal, Game Design", "unlocked": false},
+		{"num": 11, "name": "A Fábrica Cloud", "desc": "DevOps, AWS, Docker, K8s", "unlocked": false}
 	]
 	
 	for level_data in levels_data:
