@@ -1,0 +1,488 @@
+# THE CORE DESCENT - ARQUITETURA DE CÓDIGO
+# Arquivo: PlayerController.gd - Controlador do Tracer (personagem principal)
+
+extends CharacterBody2D
+class_name PlayerController
+
+# Configurações de movimento
+@export var move_speed: float = 150.0
+@export var acceleration: float = 800.0
+@export var friction: float = 400.0
+
+# Referências
+var animation_player: AnimationPlayer
+var sprite: Sprite2D
+var state_label: Label
+
+# Estado do jogador
+enum PlayerState { 
+	IDLE, 
+	MOVING, 
+	EVALUATING, 
+	EXECUTING, 
+	BLOCKED, 
+	SUCCESS, 
+	FAILURE 
+}
+
+var current_state: PlayerState = PlayerState.IDLE
+var target_position: Vector2 = Vector2.ZERO
+var current_logic_block: LogicBlock = null
+
+# Sistema de lógica/execução
+var logic_path: Array[LogicBlock] = []
+var path_index: int = 0
+var is_executing_path: bool = false
+
+# Sistema de execução de blocos
+var execution_queue: Array = []  # Fila de ações para executar
+var current_execution: Dictionary = {}  # Ação atual sendo executada
+
+# Feedback visual
+var trail_effect: Line2D
+var highlight_sprite: Sprite2D
+
+# Controles e input
+var input_enabled: bool = true
+
+func _ready():
+	setup_visual()
+	setup_animations()
+	setup_input()
+	setup_effects()
+	add_to_group("player")
+
+func setup_visual():
+	"""Configura aparência do personagem"""
+	# Sprite principal
+	sprite = Sprite2D.new()
+	sprite.texture = load("res://assets/sprites/tracer.png")
+	sprite.modulate = Color.CYAN  # Cor característica do tracer
+	add_child(sprite)
+	
+	# Label de estado (debug)
+	state_label = Label.new()
+	state_label.text = "IDLE"
+	state_label.position = Vector2(-20, -30)
+	state_label.modulate = Color.WHITE
+	add_child(state_label)
+
+func setup_animations():
+	"""Configura sistema de animações"""
+	animation_player = AnimationPlayer.new()
+	add_child(animation_player)
+	
+	# Criar animações básicas
+	create_basic_animations()
+
+func create_basic_animations():
+	"""Cria animações básicas do personagem"""
+	# Animação de movimento
+	var move_anim = Animation.new()
+	move_anim.length = 0.3
+	move_anim.loop_mode = Animation.LOOP_LINEAR
+	
+	# Track para posição
+	var track = move_anim.add_track(Animation.TYPE_VALUE)
+	move_anim.track_set_path(track, NodePath(".:position"))
+	
+	# Keyframes de movimento (serão configurados dinamicamente)
+	animation_player.add_animation("move", move_anim)
+	
+	# Animação de execução
+	var execute_anim = Animation.new()
+	execute_anim.length = 0.5
+	execute_anim.loop_mode = Animation.LOOP_NONE
+	
+	# Efeito de pulsação durante execução
+	var scale_track = execute_anim.add_track(Animation.TYPE_VALUE)
+	execute_anim.track_set_path(scale_track, NodePath(".:scale"))
+	execute_anim.track_insert_key(scale_track, 0.0, Vector2.ONE)
+	execute_anim.track_insert_key(scale_track, 0.25, Vector2.ONE * 1.2)
+	execute_anim.track_insert_key(scale_track, 0.5, Vector2.ONE)
+	
+	animation_player.add_animation("execute", execute_anim)
+
+func setup_input():
+	"""Configura sistema de input"""
+	# Input já é processado automaticamente pelo _input()
+
+func setup_effects():
+	"""Configura efeitos visuais"""
+	# Trail effect para mostrar caminho
+	trail_effect = Line2D.new()
+	trail_effect.width = 2.0
+	trail_effect.default_color = Color.CYAN.with_alpha(0.5)
+	trail_effect.z_index = -1  # Atrás do personagem
+	add_child(trail_effect)
+	
+	# Highlight sprite para indicar bloco ativo
+	highlight_sprite = Sprite2D.new()
+	highlight_sprite.modulate = Color.YELLOW.with_alpha(0.3)
+	highlight_sprite.visible = false
+	add_child(highlight_sprite)
+
+func _physics_process(delta):
+	"""Processa física e movimento"""
+	update_state()
+	handle_movement(delta)
+	process_logic_execution(delta)
+	update_visual_feedback()
+
+func update_state():
+	"""Atualiza estado do jogador baseado na situação"""
+	match current_state:
+		PlayerState.IDLE:
+			if target_position != Vector2.ZERO:
+				current_state = PlayerState.MOVING
+				animation_player.play("move")
+		
+		PlayerState.MOVING:
+			if velocity.length() < 1.0:
+				# Chegou ao destino
+				arrive_at_target()
+		
+		PlayerState.EVALUATING:
+			# Aguardando avaliação do bloco atual
+			pass
+		
+		PlayerState.EXECUTING:
+			# Executando ação do bloco atual
+			pass
+
+func handle_movement(delta):
+	"""Manipula movimento do personagem"""
+	match current_state:
+		PlayerState.IDLE, PlayerState.EVALUATING:
+			# Aplicar fricção
+			velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
+		
+		PlayerState.MOVING:
+			# Mover em direção ao alvo
+			var direction = (target_position - global_position).normalized()
+			velocity = velocity.move_toward(direction * move_speed, acceleration * delta)
+		
+		_:
+			# Outros estados - parar movimento
+			velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
+	
+	move_and_slide()
+
+func arrive_at_target():
+	"""Called quando personagem chega ao destino"""
+	current_state = PlayerState.EVALUATING
+	target_position = Vector2.ZERO
+	
+	# Verificar se há bloco na posição atual
+	var block = get_block_at_position(global_position)
+	if block:
+		evaluate_block(block)
+	else:
+		# Sem bloco - voltar ao idle
+		current_state = PlayerState.IDLE
+
+func get_block_at_position(position: Vector2) -> LogicBlock:
+	"""Encontra bloco na posição especificada"""
+	var blocks = get_tree().get_nodes_in_group("logic_blocks")
+	
+	for block in blocks:
+		var block_pos = block.global_position
+		var distance = position.distance_to(block_pos)
+		if distance < 20:  # Threshold de proximidade
+			return block
+	
+	return null
+
+func evaluate_block(block: LogicBlock):
+	"""Avalia bloco e determina próximo passo"""
+	current_logic_block = block
+	
+	# Highlight do bloco atual
+	highlight_current_block(block)
+	
+	# Simular delay de avaliação
+	await get_tree().create_timer(0.2).timeout
+	
+	# Determinar próxima ação baseada no tipo de bloco
+	match block.block_type:
+		LogicBlock.BlockType.IF:
+			evaluate_conditional_block(block)
+		LogicBlock.BlockType.FOR:
+			evaluate_loop_block(block)
+		LogicBlock.BlockType.WHILE:
+			evaluate_loop_block(block)
+		LogicBlock.BlockType.MOVE:
+			execute_move_block(block)
+		_:
+			# Outros tipos - comportamento padrão
+			execute_default_block(block)
+
+func evaluate_conditional_block(block: LogicBlock):
+	"""Avalia bloco condicional (IF)"""
+	# Simular avaliação de condição
+	var condition_result = simulate_condition_evaluation()
+	
+	var target_block = null
+	if condition_result:
+		# Condição verdadeira - seguir saída "true"
+		target_block = get_connected_block(block, "true_output")
+	else:
+		# Condição falsa - seguir saída "false" ou ELSE
+		target_block = get_connected_block(block, "false_output")
+		if not target_block:
+			target_block = get_connected_block(block, "else_output")
+	
+	if target_block:
+		move_to_block(target_block)
+	else:
+		# Sem conexão válida - parada ou falha
+		current_state = PlayerState.FAILURE
+		show_feedback("NO_VALID_CONNECTION", Color.RED)
+
+func evaluate_loop_block(block: LogicBlock):
+	"""Avalia bloco de loop (FOR/WHILE)"""
+	match block.block_type:
+		LogicBlock.BlockType.FOR:
+			execute_for_loop(block)
+		LogicBlock.BlockType.WHILE:
+			execute_while_loop(block)
+
+func execute_for_loop(block: LogicBlock):
+	"""Executa loop FOR"""
+	var iterations = block.get_for_iterations() or 3  # Default para protótipo
+	
+	for i in range(iterations):
+		# Executar corpo do loop
+		var body_block = get_connected_block(block, "body_output")
+		if body_block:
+			await execute_block_sequence(body_block)
+	
+	# Depois do loop, continuar para próximo bloco
+	var next_block = get_connected_block(block, "output")
+	if next_block:
+		move_to_block(next_block)
+	else:
+		current_state = PlayerState.SUCCESS
+
+func execute_while_loop(block: LogicBlock):
+	"""Executa loop WHILE"""
+	var max_iterations = 10  # Prevenir loops infinitos
+	
+	while simulate_while_condition() and max_iterations > 0:
+		max_iterations -= 1
+		
+		# Executar corpo do loop
+		var body_block = get_connected_block(block, "body_output")
+		if body_block:
+			await execute_block_sequence(body_block)
+	
+	# Continuar após o loop
+	var next_block = get_connected_block(block, "output")
+	if next_block:
+		move_to_block(next_block)
+	else:
+		current_state = PlayerState.SUCCESS
+
+func execute_move_block(block: LogicBlock):
+	"""Executa bloco de movimento simples"""
+	# Movimento direto para próximo bloco
+	var target_block = get_connected_block(block, "output")
+	if target_block:
+		move_to_block(target_block)
+	else:
+		current_state = PlayerState.SUCCESS
+
+func execute_default_block(block: LogicBlock):
+	"""Executa bloco com comportamento padrão"""
+	# Para variáveis, assignments, etc.
+	var target_block = get_connected_block(block, "output")
+	if target_block:
+		move_to_block(target_block)
+	else:
+		current_state = PlayerState.IDLE
+
+func move_to_block(target_block: LogicBlock):
+	"""Move personagem para bloco específico"""
+	target_position = target_block.global_position
+	current_state = PlayerState.MOVING
+	
+	# Atualizar trail
+	add_to_trail(global_position)
+	
+	# Tocar som de movimento
+	play_sound("move")
+
+func execute_block_sequence(start_block: LogicBlock):
+	"""Executa sequência de blocos starting from start_block"""
+	var current = start_block
+	var visited = []
+	
+	while current and not visited.has(current):
+		visited.append(current)
+		evaluate_block(current)
+		
+		# Aguardar processamento do bloco atual
+		await get_tree().create_timer(0.1).timeout
+		current = get_next_block_in_sequence(current)
+
+func get_next_block_in_sequence(current_block: LogicBlock) -> LogicBlock:
+	"""Determina próximo bloco na sequência"""
+	# Lógica para seguir conexões dos blocos
+	var connections = current_block.output_connections
+	if connections.size() > 0:
+		var next_pos = connections[0]  # Por simplicidade, usar primeira conexão
+		return get_block_at_grid_position(next_pos)
+	return null
+
+func get_connected_block(block: LogicBlock, connection_type: String) -> LogicBlock:
+	"""Encontra bloco conectado via tipo de conexão específico"""
+	var blocks = get_tree().get_nodes_in_group("logic_blocks")
+	
+	for other_block in blocks:
+		if other_block != block:
+			# Verificar se este bloco está conectado ao bloco atual
+			# Implementação simplificada - em versão real seria mais robusta
+			if is_blocks_connected(block, other_block, connection_type):
+				return other_block
+	
+	return null
+
+func is_blocks_connected(block1: LogicBlock, block2: LogicBlock, connection_type: String) -> bool:
+	"""Verifica se dois blocos estão conectados"""
+	# Lógica simplificada para protótipo
+	# Em versão real seria baseado nas conexões reais dos blocos
+	var distance = block1.global_position.distance_to(block2.global_position)
+	return distance < 40  # Proximidade como indicação de conexão
+
+func get_block_at_grid_position(grid_pos: Vector2i) -> LogicBlock:
+	"""Encontra bloco em posição específica da grade"""
+	var blocks = get_tree().get_nodes_in_group("logic_blocks")
+	
+	for block in blocks:
+		if block.grid_position == grid_pos:
+			return block
+	
+	return null
+
+func simulate_condition_evaluation() -> bool:
+	"""Simula avaliação de condição (placeholder para lógica real)"""
+	return randi() % 2 == 0  # 50% chance para protótipo
+
+func simulate_while_condition() -> bool:
+	"""Simula condição de loop WHILE"""
+	return randi() % 3 != 0  # 66% chance para protótipo
+
+func highlight_current_block(block: LogicBlock):
+	"""Destaque visual do bloco atual"""
+	highlight_sprite.global_position = block.global_position
+	highlight_sprite.visible = true
+	
+	# Auto-hide após delay
+	await get_tree().create_timer(1.0).timeout
+	highlight_sprite.visible = false
+
+func show_feedback(message: String, color: Color):
+	"""Mostra feedback visual/sonoro"""
+	# Implementar feedback visual
+	state_label.text = message
+	state_label.modulate = color
+
+func add_to_trail(position: Vector2):
+	"""Adiciona ponto ao trail do personagem"""
+	if trail_effect.points.size() > 50:  # Limitar tamanho
+		trail_effect.remove_point(0)
+	trail_effect.add_point(position)
+
+func play_sound(sound_type: String):
+	"""Toca som de feedback"""
+	# Implementar sistema de áudio
+	match sound_type:
+		"move":
+			# Tocar som de movimento
+			pass
+		"execute":
+			# Tocar som de execução
+			pass
+		"success":
+			# Tocar som de sucesso
+			pass
+
+func update_visual_feedback():
+	"""Atualiza feedback visual baseado no estado"""
+	# Atualizar label de estado
+	state_label.text = PlayerState.keys()[current_state]
+	
+	# Colorir baseado no estado
+	match current_state:
+		PlayerState.IDLE:
+			state_label.modulate = Color.WHITE
+		PlayerState.MOVING:
+			state_label.modulate = Color.CYAN
+		PlayerState.EXECUTING:
+			state_label.modulate = Color.YELLOW
+		PlayerState.SUCCESS:
+			state_label.modulate = Color.GREEN
+		PlayerState.FAILURE:
+			state_label.modulate = Color.RED
+
+func start_level():
+	"""Inicia execução do nível"""
+	current_state = PlayerState.IDLE
+	logic_path.clear()
+	path_index = 0
+	execution_queue.clear()
+	
+	# Posicionar na posição inicial
+	var start_pos = get_level_start_position()
+	if start_pos:
+		global_position = start_pos
+	
+	# Iniciar execução se houver blocos conectados
+	var start_block = get_start_block()
+	if start_block:
+		evaluate_block(start_block)
+
+func get_level_start_position() -> Vector2:
+	"""Retorna posição inicial do nível"""
+	# Configurar baseado no nível atual
+	return Vector2(100, 100)  # Posição padrão para protótipo
+
+func get_start_block() -> LogicBlock:
+	"""Encontra bloco de início do nível"""
+	var blocks = get_tree().get_nodes_in_group("logic_blocks")
+	
+	for block in blocks:
+		if block.is_start_block:  # Precisa implementar esta propriedade
+			return block
+	
+	# Fallback: primeiro bloco encontrado
+	return blocks.size() > 0 ? blocks[0] : null
+
+func reset():
+	"""Reseta personagem para estado inicial"""
+	current_state = PlayerState.IDLE
+	target_position = Vector2.ZERO
+	current_logic_block = null
+	logic_path.clear()
+	path_index = 0
+	is_executing_path = false
+	execution_queue.clear()
+	
+	# Limpar efeitos visuais
+	trail_effect.clear_points()
+	highlight_sprite.visible = false
+	state_label.text = "IDLE"
+
+# Métodos públicos para controle externo
+func set_input_enabled(enabled: bool):
+	"""Controla se input está habilitado"""
+	input_enabled = enabled
+
+func get_current_state() -> PlayerState:
+	"""Retorna estado atual do jogador"""
+	return current_state
+
+func force_move_to(target: Vector2):
+	"""Força movimento para posição específica"""
+	target_position = target
+	current_state = PlayerState.MOVING
