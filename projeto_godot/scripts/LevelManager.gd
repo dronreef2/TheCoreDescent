@@ -158,6 +158,17 @@ func load_available_levels():
 			"estimated_time": 120,
 			"is_unlocked": false,
 			"is_completed": false
+		},
+		{
+			"id": 10,
+			"name": "O Estúdio de Jogos",
+			"description": "Game Development: Unity, Unreal Engine, Game Design Patterns",
+			"scene_path": "res://codigo/Level10.gd",
+			"required_concepts": ["lógica_básica", "orientação_objetos", "web_development", "mobile_development", "data_science", "emerging_technologies"],
+			"difficulty": "Mestre dos Jogos",
+			"estimated_time": 140,
+			"is_unlocked": false,
+			"is_completed": false
 		}
 	]
 	
@@ -241,6 +252,9 @@ func setup_player_for_level(level_id: int):
 		5:
 			player_controller.enable_abilities(true)
 			player_controller.set_available_languages(["cpp", "java", "python", "csharp", "javascript"])
+		6, 7, 8, 9, 10:
+			player_controller.enable_abilities(true)
+			player_controller.set_available_languages(["cpp", "java", "python", "csharp", "javascript", "typescript", "swift", "kotlin"])
 
 func connect_level_signals(level: Node):
 	"""Conecta sinais do nível atual"""

@@ -273,7 +273,12 @@ func create_level_buttons(parent: GridContainer):
 		{"num": 2, "name": "A Forja de Ponteiros", "desc": "C/C++ Memory Management", "unlocked": false},
 		{"num": 3, "name": "O Salão dos Mnemônicos", "desc": "Assembly Optimization", "unlocked": false},
 		{"num": 4, "name": "O Abismo Binário", "desc": "Machine Language", "unlocked": false},
-		{"num": 5, "name": "O Núcleo de Silício", "desc": "Hardware Logic", "unlocked": false}
+		{"num": 5, "name": "O Núcleo de Silício", "desc": "Hardware Logic", "unlocked": false},
+		{"num": 6, "name": "A Arquitetura Web", "desc": "Web Development Full-Stack", "unlocked": false},
+		{"num": 7, "name": "O Ecossistema Mobile", "desc": "Mobile Development", "unlocked": false},
+		{"num": 8, "name": "A Ciência dos Dados", "desc": "Data Science & ML", "unlocked": false},
+		{"num": 9, "name": "As Fronteiras da Tecnologia", "desc": "IoT, Blockchain, Quantum", "unlocked": false},
+		{"num": 10, "name": "O Estúdio de Jogos", "desc": "Game Development", "unlocked": false}
 	]
 	
 	for level_data in levels_data:
@@ -418,11 +423,16 @@ func setup_pause_menu():
 func load_level_scene(level_num: int) -> Node:
 	"""Carrega cena do nível específico"""
 	var level_scenes = {
-		1: "res://scenes/Level1.tscn",
-		2: "res://scenes/Level2.tscn", 
-		3: "res://scenes/Level3.tscn",
-		4: "res://scenes/Level4.tscn",
-		5: "res://scenes/Level5.tscn"
+		1: "res://Level1.gd",
+		2: "res://Level2.gd", 
+		3: "res://Level3.gd",
+		4: "res://Level4.gd",
+		5: "res://Level5.gd",
+		6: "res://Level6.gd",
+		7: "res://Level7.gd",
+		8: "res://Level8.gd",
+		9: "res://Level9.gd",
+		10: "res://Level10.gd"
 	}
 	
 	var scene_path = level_scenes.get(level_num)
