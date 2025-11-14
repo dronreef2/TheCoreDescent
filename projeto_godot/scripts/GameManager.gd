@@ -23,8 +23,12 @@ var language_ui: LanguageSelectionUI
 var cooldown_indicator: CooldownIndicator
 
 # Sistema de habilidades
-var selected_language_type: int = LanguageAbilitySystem.ProgrammingLanguage.PYTHON
+var selected_language_type: int = AdvancedLanguageAbilitySystem.ProgrammingLanguage.PYTHON
 var marked_position: Vector2 = Vector2.ZERO  # Para JavaScript Callback
+
+# Sistema avançado (Sprint 3)
+var advanced_ability_system: AdvancedLanguageAbilitySystem
+var advanced_language_ui: AdvancedLanguageUI
 
 # Configurações
 @export var grid_size: int = 32
@@ -61,6 +65,7 @@ func setup_game_systems():
 	setup_drag_system()
 	setup_player()
 	setup_ability_system()
+	setup_advanced_ability_system()
 	
 	# Conectar sinais
 	connect_signals()
@@ -98,6 +103,23 @@ func setup_ability_system():
 		
 	# Ajustar linguagem inicial
 	ability_system.select_language(selected_language_type)
+
+func setup_advanced_ability_system():
+	"""Configura sistema avançado de habilidades (Sprint 3)"""
+	advanced_ability_system = AdvancedLanguageAbilitySystem.new()
+	add_child(advanced_ability_system)
+	
+	# Conecta com systems básicos
+	if ability_system:
+		advanced_ability_system.setup_abilities()
+		advanced_ability_system.setup_references()
+	
+	# Conectar com player
+	if player:
+		player.set_advanced_ability_system(advanced_ability_system)
+	
+	# Configura UI avançada
+	setup_advanced_ui()
 
 func connect_signals():
 	"""Conecta sinais entre sistemas"""
@@ -586,6 +608,65 @@ func on_ability_used(language_type: int, success: bool):
 	else:
 		print("Falha ao usar habilidade ", lang_name)
 
+# === MÉTODOS AVANÇADOS (SPRINT 3) ===
+
+func on_advanced_ability_used(language_type: int, success: bool):
+	"""Callback para habilidade avançada usada"""
+	var lang_name = _get_language_name(language_type)
+	if success:
+		print("🎯 Habilidade AVANÇADA ", lang_name, " usada com sucesso!")
+		
+		# Atualiza UI avançada se disponível
+		if advanced_language_ui:
+			var stats = advanced_ability_system.get_language_stats()
+			advanced_language_ui.update_advanced_ui(language_type, stats)
+	else:
+		print("❌ Falha ao usar habilidade avançada ", lang_name)
+
+func show_advanced_language_info():
+	"""Mostra informações avançadas da linguagem atual"""
+	if advanced_language_ui:
+		advanced_language_ui.show_advanced_ui(selected_language_type)
+
+func show_mastery_overview():
+	"""Mostra overview de maestria"""
+	if advanced_language_ui:
+		advanced_language_ui.show_language_mastery()
+
+func show_language_upgrades():
+	"""Mostra melhorias disponíveis"""
+	if advanced_language_ui:
+		advanced_language_ui.show_current_upgrades()
+
+func show_global_statistics():
+	"""Mostra estatísticas globais"""
+	if advanced_language_ui:
+		advanced_language_ui.show_statistics()
+
+func _on_upgrade_purchased(language_type: int, upgrade_id: String):
+	"""Callback quando melhoria é comprada"""
+	var lang_name = _get_language_name(language_type)
+	print("🛒 Melhoria '", upgrade_id, "' comprada para ", lang_name, "!")
+	
+	# Atualiza UI
+	if advanced_language_ui:
+		var stats = advanced_ability_system.get_language_stats()
+		advanced_language_ui.update_advanced_ui(language_type, stats)
+
+func _on_language_switched(new_language: int):
+	"""Callback quando linguagem é trocada via UI"""
+	selected_language_type = new_language
+	if ability_system:
+		ability_system.select_language(new_language)
+	
+	# Atualiza displays
+	update_language_display(new_language)
+	
+	# Atualiza UI avançada
+	if advanced_language_ui:
+		var stats = advanced_ability_system.get_language_stats()
+		advanced_language_ui.update_advanced_ui(new_language, stats)
+
 func setup_cooldown_indicator():
 	"""Configura o indicador de cooldown"""
 	if not cooldown_indicator:
@@ -596,6 +677,19 @@ func setup_cooldown_indicator():
 		# Conecta com player se disponível
 		if player:
 			player.set_cooldown_indicator(cooldown_indicator)
+
+func setup_advanced_ui():
+	"""Configura interface avançada (Sprint 3)"""
+	# UI Avançada para habilidades
+	if not advanced_language_ui:
+		advanced_language_ui = AdvancedLanguageUI.new()
+		add_child(advanced_language_ui)
+		advanced_language_ui.set_ability_system(advanced_ability_system)
+		advanced_language_ui.set_game_manager(self)
+		
+		# Conectar sinais da UI avançada
+		advanced_language_ui.connect("upgrade_purchased", Callable(self, "_on_upgrade_purchased"))
+		advanced_language_ui.connect("language_switched", Callable(self, "_on_language_switched"))
 
 func quit_game():
 	"""Sai do jogo"""

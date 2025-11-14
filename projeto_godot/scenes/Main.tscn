@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/GameManager.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/PlayerController.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/DragAndDropSystem.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/LanguageSelectionUI.gd" id="4"]
 [ext_resource type="Script" path="res://scripts/CooldownIndicator.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/AdvancedLanguageUI.gd" id="6"]
 
 [node name="GameManager" type="Node2D"]
 script = ExtResource("1")
@@ -43,6 +44,19 @@ anchor_left = 0.0
 anchor_top = 0.0
 anchor_right = 0.0
 anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+
+[node name="AdvancedLanguageUI" type="Control" parent="CanvasLayer"]
+script = ExtResource("6")
+layout_mode = 3
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 0.0
@@ -136,8 +150,16 @@ offset_left = 5.0
 offset_top = 5.0
 offset_right = -5.0
 offset_bottom = -5.0
-text = "F - Usar Habilidade
-Arrastar blocos para programar"
+text = "CONTROLES BÁSICOS:
+F - Usar Habilidade
+Arrastar blocos para programar
+
+CONTROLES AVANÇADOS (Sprint 3):
+Shift+F - Alternar modo (Básico/Avançado)
+Shift+M - Ver Maestria
+Shift+U - Melhorias
+Shift+S - Estatísticas
+Shift+I - Info Avançada"
 horizontal_alignment = 0
 vertical_alignment = 0
-add_theme_font_size_override("font_size", 10)
+add_theme_font_size_override("font_size", 9)

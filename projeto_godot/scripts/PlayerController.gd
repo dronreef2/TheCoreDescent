@@ -44,7 +44,11 @@ var input_enabled: bool = true
 
 # Sistema de habilidades por linguagem
 var language_ability_system: LanguageAbilitySystem
+var advanced_ability_system: AdvancedLanguageAbilitySystem
 var cooldown_indicator: Control
+
+# Modos de habilidade (básico vs avançado)
+var use_advanced_abilities: bool = true
 
 func _ready():
 	setup_visual()
@@ -583,4 +587,146 @@ func reset_language_abilities():
 	"""Reseta as habilidades da linguagem para estado inicial"""
 	if language_ability_system:
 		language_ability_system.reset_abilities()
+	if advanced_ability_system:
+		advanced_ability_system.reset_all_progress()
+
+# === SISTEMA AVANÇADO (SPRINT 3) ===
+
+func set_advanced_ability_system(ability_sys: AdvancedLanguageAbilitySystem):
+	"""Define o sistema avançado de habilidades"""
+	advanced_ability_system = ability_sys
+	# Também define no sistema básico para compatibilidade
+	if ability_sys:
+		language_ability_system = ability_sys
+		ability_sys.set_player_reference(self)
+
+func toggle_ability_mode():
+	"""Alterna entre modo básico e avançado"""
+	use_advanced_abilities = not use_advanced_abilities
+	var mode = "AVANÇADO" if use_advanced_abilities else "BÁSICO"
+	print("🔄 Modo de habilidades alterado para: ", mode)
+
+func _use_current_ability():
+	"""Usa a habilidade atual (básico ou avançado)"""
+	if use_advanced_abilities and advanced_ability_system:
+		_use_advanced_ability()
+	else:
+		_use_basic_ability()
+
+func _use_basic_ability():
+	"""Usa habilidade básica (método original)"""
+	if not language_ability_system:
+		return
+		
+	# Verifica se a habilidade está disponível
+	if not language_ability_system.is_ability_available():
+		_show_ability_unavailable_feedback()
+		return
+		
+	# Usa a habilidade na posição atual do jogador
+	var success = language_ability_system.use_ability(global_position)
+	
+	if success:
+		_show_ability_used_feedback()
+	else:
+		_show_ability_failed_feedback()
+
+func _use_advanced_ability():
+	"""Usa habilidade avançada (Sprint 3)"""
+	if not advanced_ability_system:
+		return
+		
+	# Verifica se a habilidade avançada está disponível
+	if not advanced_ability_system.is_ability_available():
+		_show_ability_unavailable_feedback()
+		return
+		
+	# Usa a habilidade avançada na posição atual do jogador
+	var success = advanced_ability_system.use_advanced_ability(global_position)
+	
+	if success:
+		_show_advanced_ability_used_feedback()
+	else:
+		_show_ability_failed_feedback()
+
+func _show_advanced_ability_used_feedback():
+	"""Mostra feedback para habilidade avançada usada"""
+	if sprite:
+		# Efeito especial para habilidades avançadas
+		var original_modulate = sprite.modulate
+		var advanced_color = Color(1, 0.8, 0.2)  # Dourado para avançado
+		
+		# Animação especial
+		var tween = create_tween()
+		tween.tween_property(sprite, "modulate", advanced_color, 0.1)
+		tween.tween_property(sprite, "scale", Vector2(1.1, 1.1), 0.1)
+		tween.tween_property(sprite, "modulate", original_modulate, 0.3)
+		tween.tween_property(sprite, "scale", Vector2(1.0, 1.0), 0.2)
+		tween.play()
+		
+		# Atualiza estado
+		if state_label:
+			state_label.text = "ADVANCED_ABILITY"
+
+func get_advanced_stats() -> Dictionary:
+	"""Retorna estatísticas avançadas do jogador"""
+	var stats = {}
+	
+	if advanced_ability_system:
+		stats = advanced_ability_system.get_language_stats()
+	
+	# Adiciona informações do jogador
+	stats["player_info"] = {
+		"current_language": get_current_language(),
+		"advanced_mode": use_advanced_abilities,
+		"current_state": current_state
+	}
+	
+	return stats
+
+# === CONTROLES AVANÇADOS ===
+
+func _unhandled_input(event):
+	"""Processa input do jogador com controles avançados"""
+	if not input_enabled:
+		return
+		
+	# Tecla de habilidade (original)
+	if event.is_action_pressed("ui_select") or (event.is_pressed() and event.keycode == ability_key):
+		_use_current_ability()
+	
+	# Controles avançados (Shift + teclas)
+	if event.is_pressed() and event.keycode == Key.SHIFT:
+		# Shift + F: Alternar modo de habilidade
+		if Input.is_key_pressed(Key.F):
+			toggle_ability_mode()
+			get_viewport().set_input_as_handled()
+		
+		# Shift + M: Mostrar maestria
+		elif Input.is_key_pressed(Key.M):
+			var gm = get_tree().get_root().get_node("Main").get_node("GameManager")
+			if gm and gm.has_method("show_mastery_overview"):
+				gm.show_mastery_overview()
+			get_viewport().set_input_as_handled()
+		
+		# Shift + U: Mostrar melhorias
+		elif Input.is_key_pressed(Key.U):
+			var gm = get_tree().get_root().get_node("Main").get_node("GameManager")
+			if gm and gm.has_method("show_language_upgrades"):
+				gm.show_language_upgrades()
+			get_viewport().set_input_as_handled()
+		
+		# Shift + S: Mostrar estatísticas
+		elif Input.is_key_pressed(Key.S):
+			var gm = get_tree().get_root().get_node("Main").get_node("GameManager")
+			if gm and gm.has_method("show_global_statistics"):
+				gm.show_global_statistics()
+			get_viewport().set_input_as_handled()
+		
+		# Shift + I: Mostrar info avançada
+		elif Input.is_key_pressed(Key.I):
+			var gm = get_tree().get_root().get_node("Main").get_node("GameManager")
+			if gm and gm.has_method("show_advanced_language_info"):
+				gm.show_advanced_language_info()
+			get_viewport().set_input_as_handled()
 	current_state = PlayerState.MOVING
