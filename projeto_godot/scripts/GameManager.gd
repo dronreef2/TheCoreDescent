@@ -18,6 +18,13 @@ var level_number: int = 1
 # Sistemas principais
 var drag_system: DragAndDropSystem
 var player: PlayerController
+var ability_system: LanguageAbilitySystem
+var language_ui: LanguageSelectionUI
+var cooldown_indicator: CooldownIndicator
+
+# Sistema de habilidades
+var selected_language_type: int = LanguageAbilitySystem.ProgrammingLanguage.PYTHON
+var marked_position: Vector2 = Vector2.ZERO  # Para JavaScript Callback
 
 # Configurações
 @export var grid_size: int = 32
@@ -53,6 +60,7 @@ func setup_game_systems():
 	# Inicializar managers principais
 	setup_drag_system()
 	setup_player()
+	setup_ability_system()
 	
 	# Conectar sinais
 	connect_signals()
@@ -75,6 +83,21 @@ func setup_player():
 	# Configurar propriedades do player
 	player.grid_size = grid_size
 	player.snap_threshold = snap_threshold
+	
+func setup_ability_system():
+	"""Configura sistema de habilidades por linguagem"""
+	ability_system = LanguageAbilitySystem.new()
+	add_child(ability_system)
+	
+	# Conectar sistema com player
+	if player:
+		player.set_language_ability_system(ability_system)
+		
+	# Configurar indicador de cooldown
+	setup_cooldown_indicator()
+		
+	# Ajustar linguagem inicial
+	ability_system.select_language(selected_language_type)
 
 func connect_signals():
 	"""Conecta sinais entre sistemas"""
@@ -455,6 +478,124 @@ func restart_level():
 	# Recriar blocos de teste
 	create_test_blocks()
 	resume_game()
+
+# SISTEMA DE HABILIDADES POR LINGUAGEM
+func show_language_selection_ui():
+	"""Mostra interface de seleção de linguagem"""
+	if not language_ui:
+		language_ui = LanguageSelectionUI.new()
+		add_child(language_ui)
+		language_ui.set_ability_system(ability_system)
+		language_ui.set_game_manager(self)
+		
+		# Conectar sinais
+		language_ui.connect("language_selected", Callable(self, "_on_language_selected"))
+		language_ui.connect("ui_closed", Callable(self, "_on_language_ui_closed"))
+	
+	language_ui.show_ui()
+
+func force_language_selection():
+	"""Força seleção de linguagem no início do nível"""
+	show_language_selection_ui()
+	
+	# Pausa o jogo se estiver jogando
+	if current_state == GameState.PLAYING:
+		pause_game()
+
+func _on_language_selected(language_type: int):
+	"""Callback quando linguagem é selecionada"""
+	selected_language_type = language_type
+	ability_system.select_language(language_type)
+	
+	# Atualiza cooldown indicator
+	if cooldown_indicator:
+		var ability_data = ability_system.get_language_info(language_type)
+		cooldown_indicator.show_cooldown(language_type, ability_data)
+	
+	# Retoma jogo se estava pausado
+	if current_state == GameState.PAUSED:
+		resume_game()
+
+func _on_language_ui_closed():
+	"""Callback quando UI de linguagem é fechada"""
+	# Se não foi selecionada linguagem e estamos no início do nível, força seleção
+	if current_state == GameState.PLAYING and selected_language_type < 0:
+		force_language_selection()
+
+func update_language_display(language_type: int):
+	"""Atualiza display da linguagem atual"""
+	print("Linguagem selecionada: ", _get_language_name(language_type))
+	
+	# Atualiza UI se disponível
+	var language_name_label = get_node_or_null("CanvasLayer/LanguageInfo/VBoxContainer/LanguageName")
+	var ability_name_label = get_node_or_null("CanvasLayer/LanguageInfo/VBoxContainer/AbilityName")
+	
+	if language_name_label:
+		language_name_label.text = _get_language_name(language_type)
+		
+	if ability_name_label:
+		var ability_data = ability_system.get_language_info(language_type)
+		ability_name_label.text = ability_data.get("name", "N/A")
+
+func _get_language_name(language_type: int) -> String:
+	"""Retorna nome da linguagem"""
+	match language_type:
+		LanguageAbilitySystem.ProgrammingLanguage.PYTHON:
+			return "Python"
+		LanguageAbilitySystem.ProgrammingLanguage.JAVA:
+			return "Java"
+		LanguageAbilitySystem.ProgrammingLanguage.C_SHARP:
+			return "C#"
+		LanguageAbilitySystem.ProgrammingLanguage.JAVASCRIPT:
+			return "JavaScript"
+		_:
+			return "Unknown"
+
+# Métodos para habilidades específicas
+func mark_interaction_allowed(position: Vector2):
+	"""Marca uma interação como permitida temporariamente (para Duck Typing)"""
+	# Implementação simplificada - poderia ser expandida
+	pass
+
+func get_overlapping_objects(position: Vector2, object_type: String) -> Array:
+	"""Retorna objetos que sobrepõem uma posição específica"""
+	var results = []
+	var space_state = get_world_2d().direct_space_state
+	var query = PhysicsRayQueryParameters2D.create(position, position + Vector2(1, 0))
+	
+	var result = space_state.intersect_ray(query)
+	if result.size() > 0:
+		results.append(result.get("collider"))
+	
+	return results
+
+func set_marked_position(position: Vector2):
+	"""Define posição marcada (para JavaScript Callback)"""
+	marked_position = position
+	print("Posição marcada para callback: ", position)
+
+func get_marked_position() -> Vector2:
+	"""Retorna posição marcada (para JavaScript Callback)"""
+	return marked_position
+
+func on_ability_used(language_type: int, success: bool):
+	"""Callback quando habilidade é usada"""
+	var lang_name = _get_language_name(language_type)
+	if success:
+		print("Habilidade ", lang_name, " usada com sucesso!")
+	else:
+		print("Falha ao usar habilidade ", lang_name)
+
+func setup_cooldown_indicator():
+	"""Configura o indicador de cooldown"""
+	if not cooldown_indicator:
+		cooldown_indicator = CooldownIndicator.new()
+		add_child(cooldown_indicator)
+		cooldown_indicator.set_ability_system(ability_system)
+		
+		# Conecta com player se disponível
+		if player:
+			player.set_cooldown_indicator(cooldown_indicator)
 
 func quit_game():
 	"""Sai do jogo"""

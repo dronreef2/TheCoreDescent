@@ -6,10 +6,14 @@ class_name PlayerController
 @export var acceleration: float = 800.0
 @export var friction: float = 400.0
 
+# Configurações de habilidades
+@export var ability_key: Key = Key.F  # Tecla para usar habilidade
+
 # Referências
 var animation_player: AnimationPlayer
 var sprite: Sprite2D
 var state_label: Label
+var ability_system: LanguageAbilitySystem
 
 # Estado do jogador
 enum PlayerState { 
@@ -37,6 +41,10 @@ var highlight_sprite: Sprite2D
 
 # Controles e input
 var input_enabled: bool = true
+
+# Sistema de habilidades por linguagem
+var language_ability_system: LanguageAbilitySystem
+var cooldown_indicator: Control
 
 func _ready():
 	setup_visual()
@@ -468,4 +476,111 @@ func get_current_state() -> PlayerState:
 func force_move_to(target: Vector2):
 	"""Força movimento para posição específica"""
 	target_position = target
+
+# Sistema de Habilidades por Linguagem
+func set_language_ability_system(ability_sys: LanguageAbilitySystem):
+	"""Define o sistema de habilidades"""
+	language_ability_system = ability_sys
+	ability_system = ability_sys  # Para compatibilidade
+	
+	# Define referência do jogador no sistema de habilidades
+	if ability_sys:
+		ability_sys.set_player_reference(self)
+
+func set_cooldown_indicator(indicator: Control):
+	"""Define o indicador de cooldown"""
+	cooldown_indicator = indicator
+
+func _unhandled_input(event):
+	"""Processa input do jogador"""
+	if not input_enabled:
+		return
+		
+	# Tecla de habilidade
+	if event.is_action_pressed("ui_select") or (event.is_pressed() and event.keycode == ability_key):
+		_use_current_ability()
+
+func _use_current_ability():
+	"""Usa a habilidade atual"""
+	if not language_ability_system:
+		return
+		
+	# Verifica se a habilidade está disponível
+	if not language_ability_system.is_ability_available():
+		# Feedback de cooldown ativo
+		_show_ability_unavailable_feedback()
+		return
+		
+	# Usa a habilidade na posição atual do jogador
+	var success = language_ability_system.use_ability(global_position)
+	
+	if success:
+		# Feedback de sucesso da habilidade
+		_show_ability_used_feedback()
+	else:
+		# Feedback de falha
+		_show_ability_failed_feedback()
+
+func _show_ability_unavailable_feedback():
+	"""Mostra feedback quando habilidade não está disponível"""
+	if sprite:
+		# Efeito visual vermelho temporário
+		var original_modulate = sprite.modulate
+		sprite.modulate = Color(1, 0.3, 0.3)
+		
+		var tween = create_tween()
+		tween.tween_interval(0.2)
+		tween.tween_property(sprite, "modulate", original_modulate, 0.2)
+		tween.play()
+
+func _show_ability_used_feedback():
+	"""Mostra feedback quando habilidade é usada com sucesso"""
+	if sprite:
+		# Efeito visual verde temporário
+		var original_modulate = sprite.modulate
+		sprite.modulate = Color(0.5, 1, 0.5)
+		
+		var tween = create_tween()
+		tween.tween_interval(0.3)
+		tween.tween_property(sprite, "modulate", original_modulate, 0.3)
+		tween.play()
+		
+		# Atualiza estado no label se existir
+		if state_label:
+			state_label.text = "ABILITY_USED"
+
+func _show_ability_failed_feedback():
+	"""Mostra feedback quando habilidade falha"""
+	if sprite:
+		# Efeito visual amarelo temporário
+		var original_modulate = sprite.modulate
+		sprite.modulate = Color(1, 1, 0.3)
+		
+		var tween = create_tween()
+		tween.tween_interval(0.2)
+		tween.tween_property(sprite, "modulate", original_modulate, 0.2)
+		tween.play()
+
+func get_current_language() -> String:
+	"""Retorna a linguagem atual selecionada"""
+	if not language_ability_system:
+		return "N/A"
+		
+	var selected_lang = language_ability_system.selected_language
+	match selected_lang:
+		LanguageAbilitySystem.ProgrammingLanguage.PYTHON:
+			return "Python"
+		LanguageAbilitySystem.ProgrammingLanguage.JAVA:
+			return "Java"
+		LanguageAbilitySystem.ProgrammingLanguage.C_SHARP:
+			return "C#"
+		LanguageAbilitySystem.ProgrammingLanguage.JAVASCRIPT:
+			return "JavaScript"
+		_:
+			return "Unknown"
+
+func reset_language_abilities():
+	"""Reseta as habilidades da linguagem para estado inicial"""
+	if language_ability_system:
+		language_ability_system.reset_abilities()
 	current_state = PlayerState.MOVING

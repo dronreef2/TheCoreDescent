@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/GameManager.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/PlayerController.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/DragAndDropSystem.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/LanguageSelectionUI.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/CooldownIndicator.gd" id="5"]
 
 [node name="GameManager" type="Node2D"]
 script = ExtResource("1")
@@ -19,3 +21,123 @@ zoom = Vector2(0.8, 0.8)
 current = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="LanguageSelectionUI" type="Control" parent="CanvasLayer"]
+script = ExtResource("4")
+layout_mode = 3
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+
+[node name="CooldownIndicator" type="Control" parent="CanvasLayer"]
+script = ExtResource("5")
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+
+[node name="LanguageInfo" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 2
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 210.0
+offset_bottom = 60.0
+
+[node name="Panel" type="Panel" parent="CanvasLayer/LanguageInfo"]
+layout_mode = 1
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/LanguageInfo"]
+layout_mode = 1
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+
+[node name="Title" type="Label" parent="CanvasLayer/LanguageInfo/VBoxContainer"]
+layout_mode = 2
+text = "Linguagem Atual:"
+horizontal_alignment = 1
+
+[node name="LanguageName" type="Label" parent="CanvasLayer/LanguageInfo/VBoxContainer"]
+layout_mode = 2
+text = "Python"
+horizontal_alignment = 1
+add_theme_font_size_override("font_size", 14)
+
+[node name="AbilityName" type="Label" parent="CanvasLayer/LanguageInfo/VBoxContainer"]
+layout_mode = 2
+text = "Duck Typing"
+horizontal_alignment = 1
+add_theme_font_size_override("font_size", 10)
+
+[node name="Instructions" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 2
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -60.0
+offset_right = 300.0
+offset_bottom = -10.0
+
+[node name="Panel" type="Panel" parent="CanvasLayer/Instructions"]
+layout_mode = 1
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+
+[node name="Label" type="Label" parent="CanvasLayer/Instructions"]
+layout_mode = 1
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+text = "F - Usar Habilidade
+Arrastar blocos para programar"
+horizontal_alignment = 0
+vertical_alignment = 0
+add_theme_font_size_override("font_size", 10)
