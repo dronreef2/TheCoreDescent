@@ -114,6 +114,50 @@ func load_available_levels():
 			"estimated_time": 60,
 			"is_unlocked": false,
 			"is_completed": false
+		},
+		{
+			"id": 6,
+			"name": "A Arquitetura Web",
+			"description": "Desenvolvimento web moderno e full-stack",
+			"scene_path": "res://codigo/Level6.gd",
+			"required_concepts": ["lógica_básica", "orientação_objetos", "web_development"],
+			"difficulty": "Especialista-Avançado",
+			"estimated_time": 75,
+			"is_unlocked": false,
+			"is_completed": false
+		},
+		{
+			"id": 7,
+			"name": "O Ecossistema Mobile",
+			"description": "Desenvolvimento mobile nativo e cross-platform",
+			"scene_path": "res://codigo/Level7.gd",
+			"required_concepts": ["lógica_básica", "orientação_objetos", "web_development", "mobile_development"],
+			"difficulty": "Especialista-Avançado",
+			"estimated_time": 85,
+			"is_unlocked": false,
+			"is_completed": false
+		},
+		{
+			"id": 8,
+			"name": "A Ciência dos Dados",
+			"description": "Data Science e Machine Learning",
+			"scene_path": "res://codigo/Level8.gd",
+			"required_concepts": ["lógica_básica", "orientação_objetos", "algoritmos", "data_science"],
+			"difficulty": "Especialista-Máximo",
+			"estimated_time": 95,
+			"is_unlocked": false,
+			"is_completed": false
+		},
+		{
+			"id": 9,
+			"name": "As Fronteiras da Tecnologia",
+			"description": "IoT, Blockchain e Computação Quântica",
+			"scene_path": "res://codigo/Level9.gd",
+			"required_concepts": ["lógica_básica", "orientação_objetos", "web_development", "mobile_development", "data_science"],
+			"difficulty": "Inovador",
+			"estimated_time": 120,
+			"is_unlocked": false,
+			"is_completed": false
 		}
 	]
 	

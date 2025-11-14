@@ -28,13 +28,18 @@
 │   ├── Level2.gd                 # Nível 2: A Forja de Ponteiros (C++)
 │   ├── Level3.gd                 # Nível 3: A Biblioteca de Objetos (Java/Python)
 │   ├── Level4.gd                 # Nível 4: A Arquitetura Concorrente (C#/JS)
-│   └── Level5.gd                 # Nível 5: O Arquiteto de Software (Final)
+│   ├── Level5.gd                 # Nível 5: O Arquiteto de Software (Final)
+│   ├── Level6.gd                 # Nível 6: A Arquitetura Web (Web Development) ⭐
+│   ├── Level7.gd                 # Nível 7: O Ecossistema Mobile (Mobile) ⭐
+│   ├── Level8.gd                 # Nível 8: A Ciência dos Dados (Data Science) ⭐
+│   └── Level9.gd                 # Nível 9: As Fronteiras da Tecnologia (Emerging Tech) ⭐
 │
 └── Documentação/
     ├── SPRINT_1_FUNDAMENTOS.md          # Sistema base implementado
     ├── SPRINT_2_HABILIDADES_BÁSICAS.md  # Sistema básico de habilidades
     ├── SPRINT_3_HABILIDADES_AVANÇADAS.md # Sistema avançado de habilidades
-    ├── SPRINT_4_EXPANSÃO_NÍVEIS_COMPLETO.md # Este arquivo
+    ├── SPRINT_4_EXPANSÃO_NÍVEIS_COMPLETO.md # Expansão de níveis 2-5
+    ├── SPRINT_5_EXPANSÃO_CONTEÚDO_COMPLETO.md # Expansão de conteúdo (Levels 6-9) ⭐
     ├── README_IMPLEMENTACAO.md           # Guia de implementação
     ├── GUIA_TESTES.md                    # Guia de testes
     ├── INDICE_COMPLETO_PROJETO.md        # Este arquivo
@@ -78,6 +83,34 @@
 - **Puzzles**: 5 puzzles de arquitetura
 - **Blocos**: Todos os anteriores + DOCKER, CI_PIPELINE, MONITORING
 
+### Nível 6: A Arquitetura Web (CONCLUÍDO ✅) ⭐ SPRINT 5
+- **Foco**: Desenvolvimento web moderno e full-stack
+- **Tecnologias**: HTML5, CSS3, JavaScript, React/Vue, Node.js, APIs
+- **Dificuldade**: Especialista-Avançado
+- **Puzzles**: 6 puzzles de web development
+- **Conceitos**: Responsive Design, State Management, Security, Performance
+
+### Nível 7: O Ecossistema Mobile (CONCLUÍDO ✅) ⭐ SPRINT 5
+- **Foco**: Desenvolvimento mobile nativo e cross-platform
+- **Tecnologias**: Swift, Kotlin, React Native, Flutter, iOS/Android SDK
+- **Dificuldade**: Especialista-Avançado
+- **Puzzles**: 6 puzzles de mobile development
+- **Conceitos**: Native vs Cross-platform, Biometrics, Push Notifications
+
+### Nível 8: A Ciência dos Dados (CONCLUÍDO ✅) ⭐ SPRINT 5
+- **Foco**: Data Science e Machine Learning
+- **Tecnologias**: Python, TensorFlow, PySpark, Pandas, NumPy, Scikit-learn
+- **Dificuldade**: Especialista-Máximo
+- **Puzzles**: 6 puzzles de data science
+- **Conceitos**: ML Pipelines, Big Data, Analytics, Model Deployment
+
+### Nível 9: As Fronteiras da Tecnologia (CONCLUÍDO ✅) ⭐ SPRINT 5
+- **Foco**: IoT, Blockchain e Computação Quântica
+- **Tecnologias**: IoT, Blockchain, Quantum Computing, AI, AR/VR, Sustainability
+- **Dificuldade**: Inovador
+- **Puzzles**: 6 puzzles de tecnologias emergentes
+- **Conceitos**: Innovation Management, Future Tech, Cross-domain Integration
+
 ## 🛠️ Sistemas Implementados
 
 ### 1. Sistema Base (Sprint 1)
@@ -108,6 +141,15 @@
 - ✅ UI integrada e responsiva
 - ✅ Sistema de pontuação avançado
 
+### 5. Expansão de Conteúdo (Sprint 5) ⭐ NOVO
+- ✅ Level6-9 implementados (9 níveis total)
+- ✅ Tecnologias modernas e emergentes
+- ✅ 325+ conceitos de programação
+- ✅ 41 puzzles únicos
+- ✅ Sistema de tecnologias específicas
+- ✅ Métricas de inovação e futuro
+- ✅ Sustentabilidade e ética tecnológica
+
 ## 🎮 Controles do Jogo
 
 ### Movimentação
@@ -131,10 +173,17 @@
 ## 📊 Estatísticas do Projeto
 
 ### Código Produzido
-- **Linhas totais**: 15,000+ linhas de código GDScript
-- **Arquivos**: 25+ arquivos implementados
-- **Sistemas**: 10+ sistemas interconectados
-- **Conceitos**: 125+ conceitos de programação
+- **Linhas totais**: 18,500+ linhas de código GDScript
+- **Arquivos**: 32+ arquivos implementados
+- **Sistemas**: 12+ sistemas interconectados
+- **Conceitos**: 325+ conceitos de programação e tecnologia
+
+### Expansão Sprint 5
+- **Níveis adicionados**: 4 novos níveis (Level 6-9)
+- **Puzzles novos**: 24 puzzles únicos
+- **Tecnologias**: Web, Mobile, Data Science, Emerging Tech
+- **Dificuldade máxima**: 40 movimentos (vs 25 anterior)
+- **Progressão**: Básico → Inovador (9 níveis)
 
 ### Tecnologias Utilizadas
 - **Engine**: Godot 4.3
@@ -178,6 +227,33 @@
 - Event sourcing e CQRS
 - Monitoring e observabilidade
 
+### Web Development (Level 6) ⭐
+- Frontend: HTML5, CSS3, JavaScript ES6+, React/Vue
+- Backend: Node.js, Express.js, REST APIs, Middleware
+- Database: SQL, NoSQL, Query Optimization, Indexing
+- Security: JWT, OAuth, HTTPS, CSRF, XSS Protection
+
+### Mobile Development (Level 7) ⭐
+- iOS Nativo: Swift, UIKit, SwiftUI, Core Data, Auto Layout
+- Android Nativo: Kotlin, Jetpack, Room, Material Design
+- Cross-Platform: React Native, Flutter, Hot Reload
+- Mobile UX: Biometrics, Push Notifications, Offline Sync
+
+### Data Science (Level 8) ⭐
+- Data Analysis: Pandas, NumPy, Statistical Analysis, EDA
+- Machine Learning: Scikit-learn, XGBoost, Cross Validation
+- Deep Learning: TensorFlow, PyTorch, CNN, RNN, LSTM
+- Big Data: Apache Spark, Hadoop, Distributed Computing
+- Analytics: NLP, Topic Modeling, Recommendation Systems
+
+### Emerging Technologies (Level 9) ⭐
+- IoT & Edge: MQTT, LoRaWAN, 5G, Real-time Processing
+- Blockchain: Smart Contracts, DeFi, Consensus Algorithms
+- Quantum Computing: Quantum Gates, Qubits, Quantum Algorithms
+- AI Advanced: Federated Learning, Edge AI, Autonomous Systems
+- AR/VR: Spatial Computing, Haptic Feedback, Metaverse
+- Sustainability: Green Computing, Renewable Energy, Carbon Footprint
+
 ## 🎯 Objetivos Pedagógicos
 
 ### Conceitos Fundamentais
@@ -193,6 +269,13 @@
 3. **Qualidade**: Testes, coverage, CI/CD
 4. **Performance**: Caching, otimização, monitoramento
 5. **DevOps**: Deployment, observabilidade, automação
+
+### Conceitos Modernos (Sprint 5) ⭐
+6. **Web Development**: Frontend/Backend, APIs, Security
+7. **Mobile Development**: Native/Cross-platform, UX/UI
+8. **Data Science**: ML/AI, Big Data, Analytics, MLOps
+9. **Emerging Tech**: IoT, Blockchain, Quantum, AR/VR
+10. **Innovation Management**: Technology Assessment, Future Planning
 
 ## 🧪 Testes e Validação
 
@@ -225,10 +308,17 @@
 
 ## 🔮 Roadmap Futuro
 
-### Sprint 5: Expansão de Conteúdo (Planejado)
-- ✅ Níveis adicionais temáticos
-- ✅ Conceitos avançados (ML, Blockchain, IoT)
-- ✅ Projetos práticos completos
+### Sprint 5: Expansão de Conteúdo (CONCLUÍDO ✅)
+- ✅ Níveis 6-9: Web, Mobile, Data Science, Emerging Tech
+- ✅ Conceitos avançados (ML, Blockchain, IoT, Quantum)
+- ✅ 325+ conceitos de programação e tecnologia
+- ✅ 41 puzzles únicos implementados
+
+### Sprint 6: Universo Expandido (Planejado)
+- 🎮 Game Development: Unity, Unreal Engine
+- ☁️ DevOps & Cloud: AWS, Docker, Kubernetes
+- 🔒 Cybersecurity: Ethical Hacking, Cryptography
+- 📱 Product Management: Agile, Scrum, Strategy
 
 ### Melhorias Contínuas (Planejado)
 - 🔄 Sistema de analytics de aprendizado
@@ -259,18 +349,27 @@
 
 ### Contato
 - **Desenvolvedor**: MiniMax Agent
-- **Versão**: 1.0.0
+- **Versão**: 2.0.0
 - **Data**: 2025-11-15
-- **Status**: Sprint 4 Completo
+- **Status**: Sprint 5 Completo
 
 ---
 
 ## 🏆 Conclusão
 
-"The Core Descent" representa uma abordagem inovadora para o ensino de programação, combinando gameplay envolvente com conceitos educacionais sólidos. Com 5 níveis completos e sistemas avançados implementados, o projeto está pronto para validação com usuários reais e potencial expansão comercial.
+"The Core Descent" representa uma abordagem inovadora para o ensino de programação, combinando gameplay envolvente com conceitos educacionais sólidos. Com 9 níveis completos cobrindo desde conceitos básicos até tecnologias emergentes, o projeto evoluiu para uma plataforma educacional completa.
 
-**Status Atual**: ✅ Sprint 4 Completado  
-**Próximo Marco**: Validação com usuários e planejamento do Sprint 5
+**Status Atual**: ✅ Sprint 5 Completado  
+**Marco Alcançado**: Plataforma educacional completa com 9 níveis  
+**Próximo Marco**: Validação com usuários e planejamento do Sprint 6
+
+### Conquistas Principais:
+- ✅ **9 níveis** progressivamente complexos
+- ✅ **41 puzzles** únicos e envolventes  
+- ✅ **325+ conceitos** de programação e tecnologia
+- ✅ **Tecnologias modernas** e emergentes
+- ✅ **Progressão pedagógica** do básico ao inovador
+- ✅ **Base sólida** para expansões futuras
 
 ---
 
