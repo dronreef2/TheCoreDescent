@@ -23,7 +23,14 @@ func _initialize_command_processors():
 	var scene_commands = MCPSceneCommands.new() 
 	var project_commands = MCPProjectCommands.new()
 	var editor_commands = MCPEditorCommands.new()
-	var editor_script_commands = MCPEditorScriptCommands.new()  # Add our new processor
+	var editor_script_commands = MCPEditorScriptCommands.new()
+	
+	# Add new advanced command processors
+	var analytics_commands = MCPAnalyticsCommands.new()
+	var level_management_commands = MCPLevelManagementCommands.new()
+	var educational_content_commands = MCEducationalContentCommands.new()
+	var testing_commands = MCPTestingCommands.new()
+	var version_control_commands = MCPVersionControlCommands.new()
 	
 	# Set server reference for all processors
 	node_commands._websocket_server = _websocket_server
@@ -31,7 +38,12 @@ func _initialize_command_processors():
 	scene_commands._websocket_server = _websocket_server
 	project_commands._websocket_server = _websocket_server
 	editor_commands._websocket_server = _websocket_server
-	editor_script_commands._websocket_server = _websocket_server  # Set server reference
+	editor_script_commands._websocket_server = _websocket_server
+	analytics_commands._websocket_server = _websocket_server
+	level_management_commands._websocket_server = _websocket_server
+	educational_content_commands._websocket_server = _websocket_server
+	testing_commands._websocket_server = _websocket_server
+	version_control_commands._websocket_server = _websocket_server
 	
 	# Add them to our processor list
 	_command_processors.append(node_commands)
@@ -39,7 +51,12 @@ func _initialize_command_processors():
 	_command_processors.append(scene_commands)
 	_command_processors.append(project_commands)
 	_command_processors.append(editor_commands)
-	_command_processors.append(editor_script_commands)  # Add to processor list
+	_command_processors.append(editor_script_commands)
+	_command_processors.append(analytics_commands)
+	_command_processors.append(level_management_commands)
+	_command_processors.append(educational_content_commands)
+	_command_processors.append(testing_commands)
+	_command_processors.append(version_control_commands)
 	
 	# Add them as children for proper lifecycle management
 	add_child(node_commands)
@@ -47,7 +64,12 @@ func _initialize_command_processors():
 	add_child(scene_commands)
 	add_child(project_commands)
 	add_child(editor_commands)
-	add_child(editor_script_commands)  # Add as child
+	add_child(editor_script_commands)
+	add_child(analytics_commands)
+	add_child(level_management_commands)
+	add_child(educational_content_commands)
+	add_child(testing_commands)
+	add_child(version_control_commands)
 
 func _handle_command(client_id: int, command: Dictionary) -> void:
 	var command_type = command.get("type", "")
