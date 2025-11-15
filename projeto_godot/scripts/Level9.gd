@@ -31,6 +31,8 @@ var goal_block: LogicBlock
 # Objetivo atual
 var moves_used: int = 0
 var blocks_placed: int = 0
+var _object_pool_size: int = 10
+var _resource_pool: Array = []
 var level_timer: float = 0.0
 var is_timer_running: bool = false
 var ability_used_count: Dictionary = {}
@@ -235,6 +237,8 @@ func initialize_puzzles():
     ]
 
 func _ready():
+    _initialize_concept_cache()
+    _initialize_object_pool()
     print("Level 9: As Fronteiras da Tecnologia - Iniciando...")
     
     # Inicializar puzzles
@@ -1069,3 +1073,26 @@ func cleanup():
     
     print("Level 9: As Fronteiras da Tecnologia - Limpeza concluída")
     print("O futuro tecnológico foi moldado com sucesso!")
+func _exit_tree():
+    print("🧹 Level'${level_num}': Cleanup automático")
+    concepts.clear()
+    containers.clear()
+    deployments.clear()
+    services.clear()
+
+func _initialize_concept_cache():
+    _initialize_object_pool()
+    print("📦 Level'${level_num}': Cache de conceitos inicializado")
+    # Cache de conceitos para performance
+
+func _initialize_object_pool():
+    for i in _object_pool_size:
+        _resource_pool.append({"id": "resource_" + str(i), "status": "available"})
+    print("🎯 Level'${level_num}': Object pool inicializado")
+
+func acquire_resource() -> Dictionary:
+    return _resource_pool.pop_back() if _resource_pool.size() > 0 else {"id": "new_resource", "status": "created"}
+
+func return_resource(resource: Dictionary):
+    resource["status"] = "available"
+    _resource_pool.append(resource)

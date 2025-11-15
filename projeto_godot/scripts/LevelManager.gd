@@ -17,6 +17,8 @@ var ui_manager: Node
 var current_level: Node2D
 var level_index: int = 0
 var available_levels: Array = []
+var _levels_cache: Dictionary = {}
+var _cache_initialized: bool = false
 var completed_levels: Array = []
 var unlocked_levels: Array = []
 
@@ -588,3 +590,27 @@ func get_level_best_score(level_id: int) -> int:
 	if level_data.has("final_score"):
 		return int(level_data["final_score"].get("total", 0))
 	return 0
+func _initialize_levels_cache():
+    if _cache_initialized:
+        return
+    
+    for level in available_levels:
+        _levels_cache[level.id] = level
+        if level.has_method("get_performance_metrics"):
+            _levels_cache[level.id + "_metrics"] = level.get_performance_metrics()
+    
+    _cache_initialized = true
+    print("📦 LevelManager: Cache de níveis inicializado")
+
+func get_cached_level(level_id: String):
+    if not _cache_initialized:
+        _initialize_levels_cache()
+    return _levels_cache.get(level_id, null)
+
+func update_performance_metrics():
+    var metrics = {
+        "total_levels": available_levels.size(),
+        "loaded_levels": _levels_cache.size(),
+        "cache_hit_rate": float(_levels_cache.size()) / max(1, available_levels.size())
+    }
+    emit_signal("performance_metrics_updated", metrics)

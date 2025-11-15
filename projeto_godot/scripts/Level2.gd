@@ -712,3 +712,9 @@ func get_level_info() -> Dictionary:
 signal puzzle_loaded(puzzle_index: int)
 signal level_completed(puzzle_count: int)
 signal puzzle_completed(score: Dictionary)
+func _exit_tree():
+    print("🧹 Level'${level_num}': Cleanup automático")
+    concepts.clear()
+    containers.clear()
+    deployments.clear()
+    services.clear()
