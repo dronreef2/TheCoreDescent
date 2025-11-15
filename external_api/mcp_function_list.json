@@ -1,1 +1,434 @@
-[]
+{
+  "version": "1.0.0",
+  "server": "godot-mcp-core-descent",
+  "tools": [
+    {
+      "name": "launch_editor",
+      "title": "Launch Godot Editor",
+      "description": "Opens the Godot editor for a given project.",
+      "arguments": {
+        "projectPath": {
+          "type": "string",
+          "optional": true,
+          "description": "Path to the project directory. Uses default if omitted."
+        },
+        "extraArgs": {
+          "type": "array",
+          "items": "string",
+          "default": [],
+          "description": "Additional command-line arguments for the editor."
+        }
+      },
+      "returns": {
+        "processId": "string",
+        "message": "string"
+      },
+      "notes": [
+        "Requires GODOT_ALLOW_EDITOR=true in config",
+        "Returns process ID for tracking"
+      ]
+    },
+    {
+      "name": "run_project",
+      "title": "Run Godot Project",
+      "description": "Runs a Godot project in debug or headless mode.",
+      "arguments": {
+        "projectPath": {
+          "type": "string",
+          "optional": true,
+          "description": "Path to the project directory."
+        },
+        "headless": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run without rendering (headless mode)."
+        },
+        "debug": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable debug mode with verbose output."
+        },
+        "extraArgs": {
+          "type": "array",
+          "items": "string",
+          "default": [],
+          "description": "Additional command-line arguments."
+        }
+      },
+      "returns": {
+        "processId": "string",
+        "args": "array",
+        "message": "string"
+      },
+      "notes": [
+        "Use get_debug_output to retrieve logs",
+        "Headless mode useful for CI/automated testing"
+      ]
+    },
+    {
+      "name": "get_debug_output",
+      "title": "Fetch Godot Logs",
+      "description": "Returns captured stdout/stderr from a managed Godot process.",
+      "arguments": {
+        "processId": {
+          "type": "string",
+          "required": true,
+          "description": "Process ID returned by launch_editor or run_project."
+        },
+        "since": {
+          "type": "number",
+          "optional": true,
+          "description": "Timestamp (ms) to filter logs from. Omit for all logs."
+        }
+      },
+      "returns": {
+        "logs": "array",
+        "formatted": "string"
+      },
+      "notes": [
+        "Logs include timestamp, stream (stdout/stderr), and message",
+        "Use since parameter for incremental log fetching"
+      ]
+    },
+    {
+      "name": "stop_project",
+      "title": "Stop Godot Process",
+      "description": "Stops a running Godot process started by this server.",
+      "arguments": {
+        "processId": {
+          "type": "string",
+          "required": true,
+          "description": "Process ID to terminate."
+        }
+      },
+      "returns": {
+        "success": "boolean",
+        "processId": "string"
+      },
+      "notes": [
+        "Sends SIGTERM to process",
+        "Returns false if process not found"
+      ]
+    },
+    {
+      "name": "get_godot_version",
+      "title": "Godot Version",
+      "description": "Returns the installed Godot version string.",
+      "arguments": {},
+      "returns": {
+        "version": "string"
+      },
+      "notes": [
+        "Executes godot --version",
+        "Useful for compatibility checks"
+      ]
+    },
+    {
+      "name": "list_projects",
+      "title": "List Godot Projects",
+      "description": "Finds Godot projects within a directory tree.",
+      "arguments": {
+        "root": {
+          "type": "string",
+          "optional": true,
+          "description": "Directory to search. Defaults to GODOT_PROJECTS_ROOT."
+        },
+        "depth": {
+          "type": "number",
+          "min": 1,
+          "max": 8,
+          "optional": true,
+          "description": "Search depth. Defaults to GODOT_SEARCH_DEPTH."
+        }
+      },
+      "returns": {
+        "projects": "array"
+      },
+      "notes": [
+        "Scans for project.godot files",
+        "Returns name, path, and lastModified timestamp"
+      ]
+    },
+    {
+      "name": "get_project_info",
+      "title": "Analyze Godot Project",
+      "description": "Reads project.godot and summarizes scenes/scripts/resources.",
+      "arguments": {
+        "projectPath": {
+          "type": "string",
+          "optional": true,
+          "description": "Project directory to analyze."
+        }
+      },
+      "returns": {
+        "analysis": {
+          "descriptor": "object",
+          "stats": "object",
+          "defaultScene": "string"
+        }
+      },
+      "notes": [
+        "Parses project.godot INI format",
+        "Counts .tscn, .gd, .tres files"
+      ]
+    },
+    {
+      "name": "create_scene",
+      "title": "Create Scene",
+      "description": "Creates a new .tscn with a root node.",
+      "arguments": {
+        "scenePath": {
+          "type": "string",
+          "required": true,
+          "description": "Relative path for the new scene (e.g., 'levels/Level15.tscn')."
+        },
+        "rootType": {
+          "type": "string",
+          "required": true,
+          "description": "Root node type (e.g., 'Node2D', 'Node3D', 'Control')."
+        },
+        "rootName": {
+          "type": "string",
+          "optional": true,
+          "description": "Custom name for root node. Defaults to rootType."
+        },
+        "uid": {
+          "type": "string",
+          "optional": true,
+          "description": "Custom UID. Auto-generated if omitted (Godot 4.4+)."
+        }
+      },
+      "returns": {
+        "scenePath": "string",
+        "uid": "string"
+      },
+      "notes": [
+        "Creates directory structure automatically",
+        "Scene ready for editing with add_node"
+      ]
+    },
+    {
+      "name": "add_node",
+      "title": "Add Node",
+      "description": "Injects a new node block into a scene file.",
+      "arguments": {
+        "scenePath": {
+          "type": "string",
+          "required": true,
+          "description": "Scene to modify."
+        },
+        "nodeName": {
+          "type": "string",
+          "required": true,
+          "description": "Unique name for the node."
+        },
+        "nodeType": {
+          "type": "string",
+          "required": true,
+          "description": "Node class (e.g., 'Sprite2D', 'Label', 'CollisionShape2D')."
+        },
+        "parent": {
+          "type": "string",
+          "optional": true,
+          "description": "Parent node path. Defaults to root (\".\")."
+        },
+        "properties": {
+          "type": "object",
+          "optional": true,
+          "description": "Key-value pairs for node properties."
+        }
+      },
+      "returns": {
+        "scenePath": "string",
+        "nodeName": "string",
+        "nodeType": "string"
+      },
+      "notes": [
+        "Properties can be strings, numbers, vectors, colors",
+        "Use load_sprite for Sprite2D texture assignment"
+      ]
+    },
+    {
+      "name": "load_sprite",
+      "title": "Load Sprite",
+      "description": "Assigns a texture to an existing Sprite2D node.",
+      "arguments": {
+        "scenePath": {
+          "type": "string",
+          "required": true,
+          "description": "Scene containing the Sprite2D."
+        },
+        "nodeName": {
+          "type": "string",
+          "required": true,
+          "description": "Name of the Sprite2D node."
+        },
+        "texturePath": {
+          "type": "string",
+          "required": true,
+          "description": "Godot resource path (e.g., 'res://assets/player.png')."
+        }
+      },
+      "returns": {
+        "scenePath": "string",
+        "nodeName": "string",
+        "texturePath": "string"
+      },
+      "notes": [
+        "Node must already exist in scene",
+        "Texture path must be valid Godot resource"
+      ]
+    },
+    {
+      "name": "export_mesh_library",
+      "title": "Export MeshLibrary",
+      "description": "Scans a scene for MeshInstance nodes and exports a MeshLibrary resource.",
+      "arguments": {
+        "scenePath": {
+          "type": "string",
+          "required": true,
+          "description": "Scene to scan for meshes."
+        },
+        "outputPath": {
+          "type": "string",
+          "required": true,
+          "description": "Path for the .tres MeshLibrary output."
+        }
+      },
+      "returns": {
+        "outputPath": "string",
+        "entries": "number"
+      },
+      "notes": [
+        "Useful for GridMap-based level design",
+        "Automatically assigns sequential item IDs"
+      ]
+    },
+    {
+      "name": "save_scene",
+      "title": "Save Scene Variant",
+      "description": "Copies a scene to a new path, optionally regenerating its UID.",
+      "arguments": {
+        "scenePath": {
+          "type": "string",
+          "required": true,
+          "description": "Source scene to copy."
+        },
+        "variantPath": {
+          "type": "string",
+          "required": true,
+          "description": "Destination path for the variant."
+        },
+        "rootName": {
+          "type": "string",
+          "optional": true,
+          "description": "New root node name."
+        },
+        "uid": {
+          "type": "string",
+          "optional": true,
+          "description": "Custom UID or 'regenerate' to create new."
+        }
+      },
+      "returns": {
+        "variantPath": "string",
+        "uid": "string"
+      },
+      "notes": [
+        "Use 'regenerate' for uid to avoid conflicts",
+        "Preserves all node structure and properties"
+      ]
+    },
+    {
+      "name": "get_uid",
+      "title": "Get Resource UID",
+      "description": "Reads the UID declared in a .tscn/.tres file.",
+      "arguments": {
+        "projectPath": {
+          "type": "string",
+          "optional": true,
+          "description": "Project directory."
+        },
+        "resourcePath": {
+          "type": "string",
+          "required": true,
+          "description": "Relative path to resource file."
+        }
+      },
+      "returns": {
+        "uid": "string"
+      },
+      "notes": [
+        "Returns null if no UID metadata found",
+        "UIDs required for Godot 4.4+ resource tracking"
+      ]
+    },
+    {
+      "name": "update_project_uids",
+      "title": "Reseed UIDs",
+      "description": "Generates fresh UIDs for project resources and updates references.",
+      "arguments": {
+        "projectPath": {
+          "type": "string",
+          "optional": true,
+          "description": "Project to update."
+        },
+        "patterns": {
+          "type": "array",
+          "items": "string",
+          "optional": true,
+          "description": "Glob patterns for files to update (e.g., ['**/*.tscn'])."
+        }
+      },
+      "returns": {
+        "updates": "array"
+      },
+      "notes": [
+        "Use with caution - updates all matching resources",
+        "Automatically fixes uid:// references",
+        "Backup project before running"
+      ]
+    },
+    {
+      "name": "list_processes",
+      "title": "List Managed Processes",
+      "description": "Returns metadata for Godot processes launched by this server.",
+      "arguments": {},
+      "returns": {
+        "processes": "array"
+      },
+      "notes": [
+        "Shows process ID, kind (editor/runtime), start time, args",
+        "Useful for tracking multiple concurrent runs"
+      ]
+    }
+  ],
+  "common_workflows": [
+    {
+      "name": "Create and run new level",
+      "steps": [
+        "create_scene {scenePath: 'levels/Level15.tscn', rootType: 'Node2D'}",
+        "add_node {scenePath: 'levels/Level15.tscn', nodeName: 'Player', nodeType: 'CharacterBody2D'}",
+        "run_project {headless: true}",
+        "get_debug_output {processId: '<from previous>'}",
+        "stop_project {processId: '<id>'}"
+      ]
+    },
+    {
+      "name": "Validate project structure",
+      "steps": [
+        "get_project_info {}",
+        "list_projects {root: '.', depth: 3}",
+        "get_godot_version {}"
+      ]
+    },
+    {
+      "name": "Batch UID regeneration",
+      "steps": [
+        "update_project_uids {patterns: ['scenes/**/*.tscn', 'levels/**/*.tscn']}",
+        "run_project {headless: true}",
+        "verify no UID conflicts in logs"
+      ]
+    }
+  ]
+}

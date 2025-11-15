@@ -8,6 +8,60 @@
 - ✅ Plugin MCP copiado para projeto The Core Descent
 - ✅ Configuração personalizada criada
 - ✅ Pronto para uso com Claude Desktop
+- ✅ Inventário de funções MCP documentado em `external_api/mcp_function_list.json`
+
+---
+
+## 📚 **Inventário de Ferramentas MCP**
+
+O servidor MCP expõe **16 ferramentas** para automação Godot. Veja a documentação completa em:
+```
+external_api/mcp_function_list.json
+```
+
+### **Principais Categorias:**
+
+#### 🎮 **Gerenciamento de Processos**
+- `launch_editor` - Abre o editor Godot (requer `GODOT_ALLOW_EDITOR=true`)
+- `run_project` - Executa projeto em modo debug ou headless
+- `get_debug_output` - Captura logs stdout/stderr
+- `stop_project` - Encerra processo Godot
+- `list_processes` - Lista processos ativos gerenciados pelo MCP
+
+#### 📁 **Descoberta de Projetos**
+- `get_godot_version` - Versão instalada do Godot
+- `list_projects` - Busca projetos em árvore de diretórios
+- `get_project_info` - Analisa `project.godot` e conta recursos
+
+#### 🎬 **Edição de Cenas**
+- `create_scene` - Cria `.tscn` com nó raiz
+- `add_node` - Insere novo nó em cena existente
+- `load_sprite` - Atribui textura a Sprite2D
+- `export_mesh_library` - Exporta MeshLibrary de MeshInstance nodes
+- `save_scene` - Copia cena com UID opcional regenerado
+
+#### 🔧 **Gerenciamento de UIDs**
+- `get_uid` - Lê UID de recurso `.tscn`/`.tres`
+- `update_project_uids` - Regenera UIDs em lote e atualiza referências
+
+### **⚠️ Gotchas e Limitações:**
+
+1. **`launch_editor`:**
+   - Bloqueado por padrão (set `GODOT_ALLOW_EDITOR=true` no config)
+   - Retorna ID de processo para tracking
+
+2. **`run_project` headless:**
+   - Útil para CI/testes automatizados
+   - Use `get_debug_output` para recuperar logs incrementalmente
+
+3. **`update_project_uids`:**
+   - ⚠️ **Operação destrutiva** - faça backup antes
+   - Atualiza automaticamente referências `uid://`
+   - Use `patterns` para filtrar arquivos específicos
+
+4. **Propriedades em `add_node`:**
+   - Suporta: strings, numbers, booleans, Vector2/3, Color
+   - Para texturas Sprite2D, use `load_sprite` ao invés de properties
 
 ---
 
