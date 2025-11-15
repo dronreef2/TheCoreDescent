@@ -1,0 +1,37 @@
+{
+  "name": "godot-mcp-core-descent",
+  "version": "0.1.0",
+  "description": "Model Context Protocol server for automating Godot projects",
+  "type": "module",
+  "bin": {
+    "godot-mcp-core-descent": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node ./build/index.js",
+    "dev": "tsx watch src/index.ts",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "godot",
+    "mcp",
+    "automation",
+    "cli"
+  ],
+  "author": "The Core Descent Team",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.22.0",
+    "fast-glob": "^3.3.2",
+    "fs-extra": "^11.2.0",
+    "ini": "^4.1.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/ini": "^4.1.1",
+    "@types/node": "^22.7.4",
+    "tsx": "^4.19.1",
+    "typescript": "^5.4.5"
+  }
+}

@@ -65,6 +65,19 @@ codigo/
 2. Abra o projeto em `projeto_godot/project.godot`
 3. Execute o jogo (F5)
 
+## 🤖 MCP Automation
+
+O diretório `godot-mcp-server/` contém um servidor MCP em Node.js que permite lançar o Godot, executar projetos, capturar logs e editar cenas diretamente a partir de assistentes como Cline ou Cursor. Para usar:
+
+```bash
+cd godot-mcp-server
+npm install
+npm run build
+node ./build/index.js
+```
+
+Consulte `godot-mcp-server/README.md` para detalhes de configuração, variáveis de ambiente e lista completa de ferramentas.
+
 ## 📊 Progresso do Desenvolvimento
 
 - ✅ **Sprint 1-3**: Conceitos fundamentais implementados
