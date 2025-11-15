@@ -1,0 +1,1 @@
+{"mcpServers": {"godot-mcp-core-descent": {"command": "node", "args": ["/workspace/godot-mcp-backup/server/dist/index.js"], "env": {"MCP_TRANSPORT": "stdio", "GODOT_PROJECT_PATH": "/workspace/projeto_godot"}}}}

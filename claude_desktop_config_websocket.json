@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "godot-mcp-core-descent": {
+      "type": "websocket",
+      "url": "ws://localhost:9080",
+      "name": "The Core Descent MCP Server",
+      "description": "MCP server for The Core Descent Godot project"
+    }
+  }
+}
