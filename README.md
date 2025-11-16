@@ -1,3 +1,14 @@
+keys
+An API key lets you make requests to the itch.io API for programmatically getting information about your games. The itch.io app, itch, also uses an API key to connect to your account. These keys give access to many parts of your account so you should treat them like a password.
+
+Your API keys:
+
+API key	Source	Created at	
+bmD9FmuOfOAhnt9W8oojJFR2NiuOsgEm8gOpHLdr	web	 0 seconds ago	
+Revoke
+
+
+
 # The Core Descent - Educational Programming Game
 
 ## 🎮 Sobre o Jogo
@@ -111,7 +122,7 @@ O jogo utiliza um sistema de progressão onde:
 
 ## 👨‍💻 Desenvolvedor
 
-**MiniMax Agent** - Sistema de IA para desenvolvimento de jogos educacionais
+**Guilherme desenvolvimento de jogos educacionais
 
 ---
 
