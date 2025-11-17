@@ -124,7 +124,7 @@ func setup_ui():
 	
 	# Progresso do score
 	score_label = Label.new()
-	score_label.text = "Score: {score}/" + str(total_possible_score) + ""
+	score_label.text = "Score: " + str(score) + "/" + str(total_possible_score)
 	score_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
 	vbox.add_child(score_label)
 	
@@ -181,10 +181,10 @@ func setup_puzzles():
 	puzzles = [perceptron_puzzle, feedforward_puzzle, cnn_puzzle, rnn_puzzle, rl_puzzle]
 
 func create_perceptron_puzzle() -> Node2D:
-	# Puzzle 1: Perceptron Simples
-	# Dificuldade: 6/10
-	# Tempo: 10 minutos
-	
+	"""
+	Puzzle 1: Perceptron Simples
+	Dificuldade: 6/10
+	Tempo: 10 minutos
 	Objetivo: Implementar um perceptron básico para classificação binária
 	Conceitos: Neural Networks, Perceptron, Classification
 	"""
@@ -246,10 +246,10 @@ func create_perceptron_puzzle() -> Node2D:
 	return puzzle
 
 func create_feedforward_puzzle() -> Node2D:
-	# Puzzle 2: Rede Neural Feedforward
-	# Dificuldade: 7/10
-	# Tempo: 15 minutos
-	
+	"""
+	Puzzle 2: Rede Neural Feedforward
+	Dificuldade: 7/10
+	Tempo: 15 minutos
 	Objetivo: Construir uma rede neural de múltiplas camadas
 	Conceitos: Deep Learning, Feedforward, Backpropagation
 	"""
@@ -316,10 +316,10 @@ func create_feedforward_puzzle() -> Node2D:
 	return puzzle
 
 func create_cnn_puzzle() -> Node2D:
-	# Puzzle 3: CNN para Computer Vision
-	# Dificuldade: 8/10
-	# Tempo: 20 minutos
-	
+	"""
+	Puzzle 3: CNN para Computer Vision
+	Dificuldade: 8/10
+	Tempo: 20 minutos
 	Objetivo: Implementar CNN para classificação de imagens
 	Conceitos: Computer Vision, CNN, TensorFlow
 	"""
@@ -387,10 +387,10 @@ func create_cnn_puzzle() -> Node2D:
 	return puzzle
 
 func create_rnn_puzzle() -> Node2D:
-	# Puzzle 4: RNN para NLP
-	# Dificuldade: 9/10
-	# Tempo: 20 minutos
-	
+	"""
+	Puzzle 4: RNN para NLP
+	Dificuldade: 9/10
+	Tempo: 20 minutos
 	Objetivo: Usar RNN/LSTM para análise de sentimentos
 	Conceitos: NLP, RNN, LSTM, PyTorch
 	"""
@@ -457,12 +457,12 @@ func create_rnn_puzzle() -> Node2D:
 	return puzzle
 
 func create_rl_puzzle() -> Node2D:
-	# Puzzle 5: Reinforcement Learning
-	# Dificuldade: 10/10
-	# Tempo: 10 minutos
-	
+	"""
+	Puzzle 5: Reinforcement Learning
+	Dificuldade: 9/10
+	Tempo: 20 minutos
 	Objetivo: Criar um agente RL para jogo simples
-	Conceitos: Reinforcement Learning, Q-Learning, Policy Gradient
+	Conceitos: Q-Learning, Policy, Rewards
 	"""
 	var puzzle = Node2D.new()
 	puzzle.name = "RLPuzzle"
@@ -545,8 +545,9 @@ func show_intro():
 	print("🎯 Bem-vindo ao mundo da Inteligência Artificial!")
 	print("📚 Você vai dominar conceitos avançados de AI & ML:")
 	
-	for i, concept in enumerate(TARGET_CONCEPTS, 1):
-		print("  {i:2d}. " + str(concept) + "")
+	for index in range(TARGET_CONCEPTS.size()):
+		var concept = TARGET_CONCEPTS[index]
+		print("  " + str(index + 1).pad_zeros(2) + ". " + str(concept))
 	
 	print("\n🧩 " + str(puzzles.size()) + " puzzles desafiadores aguardam:")
 	var puzzle_info = [
@@ -557,8 +558,9 @@ func show_intro():
 		"Agente de RL (D10) - 10 min"
 	]
 	
-	for i, info in enumerate(puzzle_info, 1):
-		print("  {i}. " + str(info) + "")
+	for index in range(puzzle_info.size()):
+		var info = puzzle_info[index]
+		print("  " + str(index + 1) + ". " + str(info))
 	
 	print("\n🎯 Objetivos:")
 	print("  • Compreender arquitetura de redes neurais")
@@ -592,11 +594,11 @@ func next_puzzle():
 		# Mostrar próximo puzzle
 		puzzles[current_puzzle_index].visible = true
 		
-		print("🧩 Iniciando Puzzle {current_puzzle_index + 1}/" + str(puzzles.size()) + "")
+		print("🧩 Iniciando Puzzle " + str(current_puzzle_index + 1) + "/" + str(puzzles.size()))
 		current_puzzle_index += 1
 		
 		# Atualizar UI
-		score_label.text = "Score: {score}/" + str(total_possible_score) + ""
+		score_label.text = "Score: " + str(score) + "/" + str(total_possible_score)
 		concept_progress.value = min(current_puzzle_index, TARGET_CONCEPTS.size())
 	else:
 		complete_level()
@@ -625,9 +627,10 @@ func complete_level():
 	var success = final_score_percent >= 80 and puzzles_completed >= 4
 	
 	print("\n🎉 === LEVEL 14 CONCLUÍDO ===")
-	print("🏆 Score Final: {score}/{total_possible_score} (" + str(final_score_percent:.1f) + "%)")
-	print("🧩 Puzzles Completados: {puzzles_completed}/" + str(puzzles.size()) + "")
-	print("🎯 Conceitos Dominados: {concept_progress.value}/" + str(TARGET_CONCEPTS.size()) + "")
+	var final_score_str = "%0.1f" % final_score_percent
+	print("🏆 Score Final: " + str(score) + "/" + str(total_possible_score) + " (" + final_score_str + "%)")
+	print("🧩 Puzzles Completados: " + str(puzzles_completed) + "/" + str(puzzles.size()))
+	print("🎯 Conceitos Dominados: " + str(concept_progress.value) + "/" + str(TARGET_CONCEPTS.size()))
 	
 	if success:
 		print("✅ SUCESSO! Você dominou AI & Machine Learning!")
@@ -651,7 +654,7 @@ func save_progress():
 		"level": level_number,
 		"score": score,
 		"completed": true,
-		"concepts_learned": TARGET_CONCEPTS[0:concept_progress.value],
+		"concepts_learned": TARGET_CONCEPTS.slice(0, concept_progress.value),
 		"timestamp": Time.get_unix_time_from_system()
 	}
 	
@@ -713,11 +716,12 @@ func show_completion_summary(score_percent: float, success: bool):
 	vbox.add_child(title)
 	
 	var score_label = Label.new()
-	score_label.text = "Score Final: {score}/{total_possible_score} (" + str(score_percent:.1f) + "%)"
+	var score_percent_str = "%0.1f" % score_percent
+	score_label.text = "Score Final: " + str(score) + "/" + str(total_possible_score) + " (" + score_percent_str + "%)"
 	vbox.add_child(score_label)
 	
 	var concepts_label = Label.new()
-	concepts_label.text = "Conceitos Dominados: {concept_progress.value}/" + str(TARGET_CONCEPTS.size()) + ""
+	concepts_label.text = "Conceitos Dominados: " + str(concept_progress.value) + "/" + str(TARGET_CONCEPTS.size())
 	vbox.add_child(concepts_label)
 	
 	var result_label = Label.new()
@@ -743,35 +747,35 @@ func _on_test_perceptron(puzzle: Node2D):
 	var status_label = puzzle.get_node("StatusLabel") as Label
 	score += 90  # Simular pontuação do puzzle
 	status_label.text = "✅ Perceptron implementado com sucesso! Score: +90"
-	score_label.text = "Score: {score}/" + str(total_possible_score) + ""
+	score_label.text = "Score: " + str(score) + "/" + str(total_possible_score)
 	print("🧠 Puzzle 1 concluído: Perceptron Simples")
 
 func _on_test_feedforward(puzzle: Node2D):
 	var status_label = puzzle.get_node("StatusLabel") as Label
 	score += 95
 	status_label.text = "✅ Rede neural funcionando! Score: +95"
-	score_label.text = "Score: {score}/" + str(total_possible_score) + ""
+	score_label.text = "Score: " + str(score) + "/" + str(total_possible_score)
 	print("🧠 Puzzle 2 concluído: Rede Neural Feedforward")
 
 func _on_test_cnn(puzzle: Node2D):
 	var status_label = puzzle.get_node("StatusLabel") as Label
 	score += 100
 	status_label.text = "✅ CNN treinada com sucesso! Score: +100"
-	score_label.text = "Score: {score}/" + str(total_possible_score) + ""
+	score_label.text = "Score: " + str(score) + "/" + str(total_possible_score)
 	print("🧠 Puzzle 3 concluído: CNN para Computer Vision")
 
 func _on_test_rnn(puzzle: Node2D):
 	var status_label = puzzle.get_node("StatusLabel") as Label
 	score += 85
 	status_label.text = "✅ LSTM para NLP funcionando! Score: +85"
-	score_label.text = "Score: {score}/" + str(total_possible_score) + ""
+	score_label.text = "Score: " + str(score) + "/" + str(total_possible_score)
 	print("🧠 Puzzle 4 concluído: RNN para NLP")
 
 func _on_test_rl(puzzle: Node2D):
 	var status_label = puzzle.get_node("StatusLabel") as Label
 	score += 100
 	status_label.text = "✅ Agente RL treinado! Score: +100"
-	score_label.text = "Score: {score}/" + str(total_possible_score) + ""
+	score_label.text = "Score: " + str(score) + "/" + str(total_possible_score)
 	print("🧠 Puzzle 5 concluído: Reinforcement Learning")
 
 # Event handlers para conclusão
