@@ -713,10 +713,6 @@ func cleanup_level_select():
 	"""Limpa interface de seleção de níveis"""
 	cleanup_ui()
 
-func cleanup_main_menu():
-	"""Limpa menu principal"""
-	cleanup_ui()
-
 func get_world_2d() -> World2D:
 	"""Retorna o World2D do viewport"""
 	return get_viewport().get_world_2d()
