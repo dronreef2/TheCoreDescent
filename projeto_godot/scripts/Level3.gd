@@ -762,8 +762,8 @@ func complete_current_puzzle():
 func calculate_puzzle_score() -> Dictionary:
 	"""Calcula pontuação baseada em performance e conceitos OOP"""
 	var time_score = max(0, 100 - int(level_timer))
-	var moves_score = max(0, 100 - (moves_used * 6))
-	var efficiency_score = blocks_placed > 0 ? 100 - (abs(blocks_placed - target_moves) * 3) : 50
+	var moves_score = max(0, 100 - (moves_used * 10))
+	var efficiency_score = 100 - (abs(blocks_placed - target_moves) * 3) if blocks_placed > 0 else 50
 	var oop_score = calculate_oop_score()
 	var memory_score = max(0, 100 - (garbage_count * 10))
 	

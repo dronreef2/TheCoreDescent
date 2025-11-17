@@ -452,7 +452,8 @@ func get_start_block() -> LogicBlock:
 	var blocks = get_tree().get_nodes_in_group("logic_blocks")
 	
 	# Fallback: primeiro bloco encontrado
-	return blocks.size() > 0 ? blocks[0] : null
+		# Retorna primeiro bloco válido
+	return blocks[0] if blocks.size() > 0 else null
 
 func reset():
 	"""Reseta personagem para estado inicial"""
