@@ -456,7 +456,7 @@ func get_start_block() -> LogicBlock:
 			return block
 	
 	# Fallback: primeiro bloco encontrado
-	return blocks.size() > 0 ? blocks[0] : null
+	return blocks[0] if blocks.size() > 0 else null
 
 func reset():
 	"""Reseta personagem para estado inicial"""

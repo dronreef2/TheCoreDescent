@@ -53,6 +53,8 @@ dependencies = [
  "mypy>=1.16.1",
  # PDF处理
  "weasyprint>=65.1",
+ # Godot GDScript linting
+ "gdtoolkit==4.*",
 ]
 
 [build-system]

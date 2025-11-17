@@ -1191,7 +1191,7 @@ func calculate_final_score() -> Dictionary:
 	"""Calcula pontuação final baseada em todos os conceitos"""
 	var time_score = max(0, 100 - int(level_timer))
 	var moves_score = max(0, 100 - (moves_used * 3))
-	var efficiency_score = blocks_placed > 0 ? 100 - (abs(blocks_placed - target_moves) * 2) : 50
+	var efficiency_score = 100 - (abs(blocks_placed - target_moves) * 2) if blocks_placed > 0 else 50
 	var architecture_score = calculate_architecture_score()
 	var test_score = calculate_test_score()
 	var performance_score = performance_metrics.get("overall", 0)

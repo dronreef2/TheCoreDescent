@@ -1,22 +1,13 @@
 # THE CORE DESCENT - ARQUITETURA PRINCIPAL
-# Arquivo: GameManager.gd - Coordenador principal do jogo
+# Arquivo: GameManager.gd - Coordenador principal do jogo (REFATORADO)
+# Agora delega state e level flow para services dedicados
 
 extends Node
 class_name GameManager
 
-# Estado global do jogo
-enum GameState { 
-	MAIN_MENU, 
-	LEVEL_SELECT, 
-	PLAYING, 
-	PAUSED, 
-	GAME_OVER, 
-	LEVEL_COMPLETE 
-}
-
-var current_state: GameState = GameState.MAIN_MENU
-var current_level: Node = null
-var level_number: int = 1
+# Services (dependency injection)
+var game_state_service: GameStateService
+var level_flow_service: LevelFlowService
 
 # Sistemas principais
 var drag_system: DragAndDropSystem
@@ -53,13 +44,16 @@ var hud: Control
 func _ready():
 	setup_game_systems()
 	load_game_config()
-	show_main_menu()
+	game_state_service.show_main_menu()
 
 func setup_game_systems():
 	"""Configura todos os sistemas principais"""
 	# AutoLoad singleton para GameManager
 	if name != "GameManager":
 		name = "GameManager"
+	
+	# Inicializar services
+	setup_services()
 	
 	# Inicializar managers principais
 	setup_drag_system()
@@ -70,6 +64,26 @@ func setup_game_systems():
 	
 	# Conectar sinais
 	connect_signals()
+
+func setup_services():
+	"""Configura services de state e level flow"""
+	# Tentar obter services como AutoLoad, ou criar localmente
+	if has_node("/root/GameStateService"):
+		game_state_service = get_node("/root/GameStateService")
+	else:
+		game_state_service = GameStateService.new()
+		add_child(game_state_service)
+	
+	if has_node("/root/LevelFlowService"):
+		level_flow_service = get_node("/root/LevelFlowService")
+	else:
+		level_flow_service = LevelFlowService.new()
+		add_child(level_flow_service)
+	
+	# Conectar sinais dos services
+	game_state_service.state_changed.connect(_on_state_changed)
+	game_state_service.level_unlocked.connect(_on_level_unlocked)
+	level_flow_service.level_loaded.connect(_on_level_loaded)
 
 func setup_drag_system():
 	"""Configura sistema de drag and drop"""
@@ -121,58 +135,55 @@ func load_game_config():
 	if save_data:
 		apply_save_data(save_data)
 
-# STATE MANAGEMENT
-func change_state(new_state: GameState):
-	"""Muda estado global do jogo"""
-	var old_state = current_state
-	current_state = new_state
-	
+# STATE MANAGEMENT (delegado para GameStateService)
+func _on_state_changed(old_state: GameStateService.GameState, new_state: GameStateService.GameState):
+	"""Reage a mudanças de estado vindas do service"""
 	# Cleanup estado anterior
 	match old_state:
-		GameState.MAIN_MENU:
+		GameStateService.GameState.MAIN_MENU:
 			cleanup_main_menu()
-		GameState.LEVEL_SELECT:
+		GameStateService.GameState.LEVEL_SELECT:
 			cleanup_level_select()
-		GameState.PLAYING:
+		GameStateService.GameState.PLAYING:
 			cleanup_gameplay()
 	
 	# Setup novo estado
 	match new_state:
-		GameState.MAIN_MENU:
+		GameStateService.GameState.MAIN_MENU:
 			setup_main_menu()
-		GameState.LEVEL_SELECT:
+		GameStateService.GameState.LEVEL_SELECT:
 			setup_level_select()
-		GameState.PLAYING:
+		GameStateService.GameState.PLAYING:
 			setup_gameplay()
-		GameState.PAUSED:
+		GameStateService.GameState.PAUSED:
 			setup_pause_menu()
-		GameState.LEVEL_COMPLETE:
+			get_tree().paused = true
+		GameStateService.GameState.LEVEL_COMPLETE:
 			setup_level_complete()
+	
+	# Resume logic
+	if old_state == GameStateService.GameState.PAUSED:
+		get_tree().paused = false
 
 func show_main_menu():
 	"""Mostra menu principal"""
-	change_state(GameState.MAIN_MENU)
+	game_state_service.show_main_menu()
 
 func show_level_select():
 	"""Mostra seleção de níveis"""
-	change_state(GameState.LEVEL_SELECT)
+	game_state_service.show_level_select()
 
 func start_level(level_num: int):
 	"""Inicia nível específico"""
-	level_number = level_num
-	change_state(GameState.PLAYING)
+	game_state_service.start_level(level_num)
 
 func pause_game():
 	"""Pausa o jogo"""
-	if current_state == GameState.PLAYING:
-		change_state(GameState.PAUSED)
-		get_tree().paused = true
+	game_state_service.pause_game()
 
 func resume_game():
 	"""Resume o jogo"""
-	if current_state == GameState.PAUSED:
-		get_tree().paused = false
-		change_state(GameState.PLAYING)
+	game_state_service.resume_game()
 
 # MAIN MENU
 func setup_main_menu():
@@ -297,7 +308,7 @@ func create_level_button(level_data: Dictionary) -> Button:
 	var name_label = Label.new()
 	name_label.text = "Nível " + str(level_data.num)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.modulate = level_data.unlocked ? Color.WHITE : Color.GRAY
+	name_label.modulate = Color.WHITE if level_data.unlocked else Color.GRAY
 	button_container.add_child(name_label)
 	
 	# Descrição
@@ -305,7 +316,7 @@ func create_level_button(level_data: Dictionary) -> Button:
 	desc_label.text = level_data.name
 	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	desc_label.scale = Vector2(0.8, 0.8)
-	desc_label.modulate = level_data.unlocked ? Color.CYAN : Color.GRAY
+	desc_label.modulate = Color.CYAN if level_data.unlocked else Color.GRAY
 	button_container.add_child(desc_label)
 	
 	# Status
@@ -313,7 +324,7 @@ func create_level_button(level_data: Dictionary) -> Button:
 	status_label.text = level_data.desc
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_label.scale = Vector2(0.7, 0.7)
-	status_label.modulate = level_data.unlocked ? Color.GREEN : Color.RED
+	status_label.modulate = Color.GREEN if level_data.unlocked else Color.RED
 	button_container.add_child(status_label)
 	
 	# Configurar botão
@@ -327,132 +338,82 @@ func create_level_button(level_data: Dictionary) -> Button:
 	
 	return button
 
-# GAMEPLAY
+# GAMEPLAY (delegado para LevelFlowService)
 func setup_gameplay():
 	"""Configura gameplay do nível"""
 	cleanup_ui()
 	
-	# Carregar cena do nível
-	current_level = load_level_scene(level_number)
-	if current_level:
-		add_child(current_level)
+	# Carregar nível via service
+	var success = level_flow_service.start_level(game_state_service.level_number, self)
+	if not success:
+		push_error("Failed to load level " + str(game_state_service.level_number))
+		return
 	
 	# Configurar jogador
 	if player:
-		player.position = Vector2(100, 100)  # Posição inicial padrão
+		player.position = Vector2(100, 100)
 		player.start_level()
 	
-	# Setup HUD
-	setup_hud()
+	# Setup HUD via service
+	var hud_node = level_flow_service.setup_hud(self)
+	if hud_node:
+		# Adicionar info customizada ao HUD
+		var player_info = Label.new()
+		player_info.text = "Linguagem: " + starting_language
+		player_info.position = Vector2(50, 15)
+		hud_node.add_child(player_info)
+		
+		# Conectar pause button
+		var pause_btn = hud_node.get_node("Button")
+		if pause_btn:
+			pause_btn.pressed.connect(Callable(self, "pause_game"))
 	
 	# Input mapping para pause
 	setup_input_mapping()
 
 func cleanup_gameplay():
 	"""Limpa gameplay"""
-	if current_level:
-		current_level.queue_free()
-		current_level = null
+	level_flow_service.cleanup_level()
 
-func setup_hud():
-	"""Configura heads-up display"""
-	hud = Control.new()
-	hud.name = "HUD"
-	hud.anchor_left = 0
-	hud.anchor_top = 0
-	hud.anchor_right = 1
-	hud.anchor_bottom = 0
-	hud.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	add_child(hud)
-	
-	# Botão de pause
-	var pause_button = Button.new()
-	pause_button.text = "II"
-	pause_button.position = Vector2(10, 10)
-	pause_button.pressed.connect(Callable(self, "pause_game"))
-	hud.add_child(pause_button)
-	
-	# Info do jogador
-	var player_info = Label.new()
-	player_info.text = "Linguagem: " + starting_language
-	player_info.position = Vector2(50, 15)
-	hud.add_child(player_info)
+func _on_level_loaded(level_node: Node):
+	"""Callback quando nível é carregado pelo service"""
+	print("Level loaded: ", level_node.name)
 
-# PAUSE MENU
+# PAUSE MENU (delegado para LevelFlowService)
 func setup_pause_menu():
 	"""Configura menu de pause"""
-	pause_menu = Control.new()
-	pause_menu.name = "PauseMenu"
-	pause_menu.anchor_left = 0
-	pause_menu.anchor_top = 0
-	pause_menu.anchor_right = 1
-	pause_menu.anchor_bottom = 1
-	pause_menu.modulate = Color(0, 0, 0, 0.7)
-	add_child(pause_menu)
+	pause_menu = level_flow_service.setup_pause_menu(self)
 	
-	var pause_container = VBoxContainer.new()
-	pause_container.anchor_left = 0.5
-	pause_container.anchor_top = 0.5
-	pause_container.anchor_right = 0.5
-	pause_container.anchor_bottom = 0.5
-	pause_container.position = Vector2(-100, -75)
-	pause_menu.add_child(pause_container)
-	
-	var title = Label.new()
-	title.text = "JOGO PAUSADO"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.modulate = Color.YELLOW
-	pause_container.add_child(title)
-	
-	var resume_button = Button.new()
-	resume_button.text = "CONTINUAR"
-	resume_button.pressed.connect(Callable(self, "resume_game"))
-	pause_container.add_child(resume_button)
-	
-	var restart_button = Button.new()
-	restart_button.text = "REINICIAR NÍVEL"
-	restart_button.pressed.connect(Callable(self, "restart_level"))
-	pause_container.add_child(restart_button)
-	
-	var main_menu_button = Button.new()
-	main_menu_button.text = "MENU PRINCIPAL"
-	main_menu_button.pressed.connect(Callable(self, "show_main_menu"))
-	pause_container.add_child(main_menu_button)
+	# Conectar botões personalizados
+	var pause_container = pause_menu.get_node("VBoxContainer")
+	if pause_container:
+		# Adicionar botões customizados
+		var resume_button = Button.new()
+		resume_button.text = "CONTINUAR"
+		resume_button.pressed.connect(Callable(self, "resume_game"))
+		pause_container.add_child(resume_button)
+		
+		var restart_button = Button.new()
+		restart_button.text = "REINICIAR NÍVEL"
+		restart_button.pressed.connect(Callable(self, "restart_level"))
+		pause_container.add_child(restart_button)
+		
+		var main_menu_button = Button.new()
+		main_menu_button.text = "MENU PRINCIPAL"
+		main_menu_button.pressed.connect(Callable(self, "show_main_menu"))
+		pause_container.add_child(main_menu_button)
 
-# LEVEL LOADING
+# LEVEL LOADING (obsoleto - mantido para compatibilidade)
 func load_level_scene(level_num: int) -> Node:
-	"""Carrega cena do nível específico"""
-	var level_scenes = {
-		1: "res://Level1.gd",
-		2: "res://Level2.gd", 
-		3: "res://Level3.gd",
-		4: "res://Level4.gd",
-		5: "res://Level5.gd",
-		6: "res://Level6.gd",
-		7: "res://Level7.gd",
-		8: "res://Level8.gd",
-		9: "res://Level9.gd",
-		10: "res://Level10.gd"
-	}
-	
-	var scene_path = level_scenes.get(level_num)
-	if scene_path and ResourceLoader.exists(scene_path):
-		var scene = load(scene_path)
-		return scene.instantiate()
-	else:
-		# Fallback para Level1 se cena não existe
-		return Level1.new()
+	"""DEPRECATED: Use level_flow_service.load_level_scene() instead"""
+	return level_flow_service.load_level_scene(level_num)
 
-# SAVE SYSTEM
+# SAVE SYSTEM (delegado para GameStateService)
 func save_game():
 	"""Salva progresso do jogador"""
-	var save_data = {
-		"player_stats": player_stats,
-		"unlocked_levels": unlocked_levels,
-		"current_level": level_number,
-		"starting_language": starting_language,
-		"save_time": Time.get_unix_time_from_system()
-	}
+	var save_data = game_state_service.get_save_data()
+	save_data["starting_language"] = starting_language
+	save_data["save_time"] = Time.get_unix_time_from_system()
 	save_system.save_game(save_data)
 
 func load_game():
@@ -465,14 +426,7 @@ func load_game():
 
 func apply_save_data(save_data: Dictionary):
 	"""Aplica dados do save ao jogo"""
-	if save_data.has("player_stats"):
-		player_stats = save_data.player_stats
-	
-	if save_data.has("unlocked_levels"):
-		unlocked_levels = save_data.unlocked_levels
-	
-	if save_data.has("current_level"):
-		level_number = save_data.current_level
+	game_state_service.apply_save_data(save_data)
 	
 	if save_data.has("starting_language"):
 		starting_language = save_data.starting_language
@@ -480,14 +434,15 @@ func apply_save_data(save_data: Dictionary):
 # EVENT HANDLERS
 func _on_block_snapped(grid_pos: Vector2i):
 	"""Called quando bloco é posicionamento na grade"""
-	# Contabilizar movimento
-	player_stats.total_moves += 1
-	player_stats.puzzles_solved += 1
+	# Contabilizar movimento via service
+	game_state_service.increment_stat("total_moves")
+	game_state_service.increment_stat("puzzles_solved")
 
 func _on_drag_started(block: LogicBlock):
 	"""Called quando começa a arrastar bloco"""
 	# Feedback visual/sonoro
-	audio_manager.play_sound("pickup")
+	if audio_manager:
+		audio_manager.play_sound("pickup")
 
 func _on_player_state_changed(new_state):
 	"""Called quando estado do jogador muda"""
@@ -497,14 +452,21 @@ func _on_player_state_changed(new_state):
 		PlayerController.PlayerState.FAILURE:
 			show_failure_feedback()
 
+func _on_level_unlocked(level_num: int):
+	"""Callback quando nível é desbloqueado"""
+	print("Level unlocked: ", level_num)
+	# Atualizar UI de seleção de níveis se visível
+
 func load_last_level():
 	"""Carrega último nível jogado"""
-	if unlocked_levels.size() > 0:
-		var last_level = unlocked_levels.back()
+	var unlocked = game_state_service.get_unlocked_levels()
+	if unlocked.size() > 0:
+		var last_level = unlocked.back()
 		start_level(last_level)
 
 func restart_level():
 	"""Reinicia nível atual"""
+	var current_level = level_flow_service.current_level
 	if current_level and current_level.has_method("reset"):
 		current_level.reset()
 		player.reset()
@@ -522,15 +484,14 @@ func quit_game():
 
 func complete_current_level():
 	"""Completa nível atual"""
-	current_state = GameState.LEVEL_COMPLETE
+	game_state_service.complete_level()
 	
-	# Desbloquear próximo nível
-	var next_level = level_number + 1
-	if not unlocked_levels.has(next_level):
-		unlocked_levels.append(next_level)
+	# Desbloquear próximo nível via service
+	var next_level = game_state_service.level_number + 1
+	game_state_service.unlock_level(next_level)
 	
-	# Atualizar estatísticas
-	player_stats.levels_completed += 1
+	# Atualizar estatísticas via service
+	game_state_service.increment_stat("levels_completed")
 	
 	# Salvar progresso
 	save_game()
