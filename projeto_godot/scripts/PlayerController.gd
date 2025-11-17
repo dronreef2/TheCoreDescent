@@ -496,17 +496,8 @@ func set_cooldown_indicator(indicator: Control):
 	"""Define o indicador de cooldown"""
 	cooldown_indicator = indicator
 
-func _unhandled_input(event):
-	"""Processa input do jogador"""
-	if not input_enabled:
-		return
-		
-	# Tecla de habilidade
-	if event.is_action_pressed("ui_select") or (event.is_pressed() and event.keycode == ability_key):
-		_use_current_ability()
-
-func _use_current_ability():
-	"""Usa a habilidade atual"""
+func _use_basic_ability_legacy():
+	"""Usa a habilidade básica (legacy)"""
 	if not language_ability_system:
 		return
 		

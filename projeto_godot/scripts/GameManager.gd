@@ -695,7 +695,7 @@ func setup_cooldown_indicator():
 func setup_advanced_ui():
 	"""Configura interface avançada (Sprint 3)"""
 	# UI Avançada para habilidades
-	if not advanced_language_ui:
+	if not advanced_language_ui and advanced_ability_system:
 		advanced_language_ui = AdvancedLanguageUI.new()
 		add_child(advanced_language_ui)
 		advanced_language_ui.set_ability_system(advanced_ability_system)
@@ -708,6 +708,18 @@ func setup_advanced_ui():
 func quit_game():
 	"""Sai do jogo"""
 	get_tree().quit()
+
+func cleanup_level_select():
+	"""Limpa interface de seleção de níveis"""
+	cleanup_ui()
+
+func cleanup_main_menu():
+	"""Limpa menu principal"""
+	cleanup_ui()
+
+func get_world_2d() -> World2D:
+	"""Retorna o World2D do viewport"""
+	return get_viewport().get_world_2d()
 
 func cleanup_ui():
 	"""Limpa elementos de UI"""
@@ -726,5 +738,5 @@ func get_player() -> PlayerController:
 func format_time(seconds: float) -> String:
 	"""Formata tempo em segundos para string legível"""
 	var mins = int(seconds / 60)
-	var secs = int(seconds % 60)
+	var secs = int(seconds) % 60
 	return str(mins).pad_zeros(2) + ":" + str(secs).pad_zeros(2)

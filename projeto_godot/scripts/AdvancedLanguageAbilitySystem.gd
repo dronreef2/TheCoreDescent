@@ -1,11 +1,8 @@
-extends Node
+extends LanguageAbilitySystem
 class_name AdvancedLanguageAbilitySystem
 
 # Sistema Avançado de Habilidades por Linguagem - SPRINT 3
 # Expande funcionalidades básicas com mecânicas mais profundas e específicas
-
-# Importa sistema básico
-extends LanguageAbilitySystem
 
 # === NOVOS SISTEMAS AVANÇADOS ===
 
