@@ -11,6 +11,7 @@ class_name PlayerController
 
 # Referências
 var animation_player: AnimationPlayer
+var animation_library: AnimationLibrary
 var sprite: Sprite2D
 var state_label: Label
 var ability_system: LanguageAbilitySystem
@@ -49,6 +50,8 @@ var cooldown_indicator: Control
 
 # Modos de habilidade (básico vs avançado)
 var use_advanced_abilities: bool = true
+
+const DEFAULT_ANIMATION_LIBRARY := StringName("")
 
 func _ready():
 	setup_visual()
@@ -98,12 +101,27 @@ func setup_animations():
 	"""Configura sistema de animações"""
 	animation_player = AnimationPlayer.new()
 	add_child(animation_player)
+	animation_library = animation_player.get_animation_library(DEFAULT_ANIMATION_LIBRARY)
+	if animation_library == null:
+		animation_library = AnimationLibrary.new()
+		animation_player.add_animation_library(DEFAULT_ANIMATION_LIBRARY, animation_library)
 	
 	# Criar animações básicas
 	create_basic_animations()
 
 func create_basic_animations():
 	"""Cria animações básicas do personagem"""
+	if animation_library == null:
+		animation_library = animation_player.get_animation_library(DEFAULT_ANIMATION_LIBRARY)
+		if animation_library == null:
+			animation_library = AnimationLibrary.new()
+			animation_player.add_animation_library(DEFAULT_ANIMATION_LIBRARY, animation_library)
+	else:
+		# Garantir que animações antigas não conflitem
+		if animation_library.has_animation("move"):
+			animation_library.remove_animation("move")
+		if animation_library.has_animation("execute"):
+			animation_library.remove_animation("execute")
 	# Animação de movimento
 	var move_anim = Animation.new()
 	move_anim.length = 0.3
@@ -114,7 +132,7 @@ func create_basic_animations():
 	move_anim.track_set_path(track, NodePath(".:position"))
 	
 	# Keyframes de movimento (serão configurados dinamicamente)
-	animation_player.add_animation("move", move_anim)
+	animation_library.add_animation("move", move_anim)
 	
 	# Animação de execução
 	var execute_anim = Animation.new()
@@ -128,7 +146,7 @@ func create_basic_animations():
 	execute_anim.track_insert_key(scale_track, 0.25, Vector2.ONE * 1.2)
 	execute_anim.track_insert_key(scale_track, 0.5, Vector2.ONE)
 	
-	animation_player.add_animation("execute", execute_anim)
+	animation_library.add_animation("execute", execute_anim)
 
 func setup_input():
 	"""Configura sistema de input"""
