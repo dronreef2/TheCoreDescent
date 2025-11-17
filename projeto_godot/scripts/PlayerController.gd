@@ -6,6 +6,7 @@ class_name PlayerController
 @export var acceleration: float = 800.0
 @export var friction: float = 400.0
 @export var grid_size: int = 32
+@export var snap_threshold: float = 16.0
 
 # Configurações de habilidades
 @export var ability_key: Key = Key.KEY_F  # Tecla para usar habilidade
