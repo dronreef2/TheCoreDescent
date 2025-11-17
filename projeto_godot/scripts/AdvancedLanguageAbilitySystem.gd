@@ -16,6 +16,7 @@ var language_mastery: Dictionary = {
 
 # Sistema de Melhorias Disponíveis
 var available_upgrades: Dictionary = {}
+var base_cooldown_snapshot: Dictionary = {}
 
 # === EXPANSÕES DAS HABILIDADES ===
 
@@ -57,7 +58,12 @@ func setup_advanced_systems():
 	"""Configura sistemas avançados do Sprint 3"""
 	setup_mastery_system()
 	setup_upgrade_system()
+	_cache_base_cooldowns()
 	load_saved_progress()
+
+func _cache_base_cooldowns():
+	for lang in ProgrammingLanguage.values():
+		base_cooldown_snapshot[lang] = ability_cooldown.get(lang, 10.0)
 
 func setup_mastery_system():
 	"""Configura sistema de maestria por linguagem"""
@@ -116,6 +122,27 @@ func gain_mastery(language: ProgrammingLanguage, amount: int):
 	# Atualiza habilidades baseadas na maestria
 	update_abilities_by_mastery(language)
 
+func update_abilities_by_mastery(language: ProgrammingLanguage):
+	"""Ajusta habilidades conforme nível de maestria"""
+	var ability = abilities.get(language)
+	if ability == null:
+		return
+	var mastery_level = get_mastery_level(language)
+
+	match language:
+		ProgrammingLanguage.PYTHON:
+			var max_uses = max(1, 1 + mastery_level / 2)
+			ability["max_uses"] = max_uses
+			ability["uses_remaining"] = max_uses
+		ProgrammingLanguage.JAVA:
+			ability["area_multiplier"] = 1.0 + (0.15 * mastery_level)
+		ProgrammingLanguage.C_SHARP:
+			ability["bridge_duration"] = 15.0 + (5.0 * mastery_level)
+		ProgrammingLanguage.JAVASCRIPT:
+			ability["queue_size"] = 1 + mastery_level
+
+	abilities[language] = ability
+
 func get_mastery_level(language: ProgrammingLanguage) -> int:
 	"""Retorna nível de maestria atual"""
 	var xp = language_mastery[language]
@@ -149,6 +176,14 @@ func notify_mastery_level_up(language: ProgrammingLanguage, new_level: int):
 	
 	# Melhora habilidades base
 	enhance_base_abilities(language)
+
+func enhance_base_abilities(language: ProgrammingLanguage):
+	"""Aplica bônus de maestria às habilidades base"""
+	update_abilities_by_mastery(language)
+	var base_cooldown = base_cooldown_snapshot.get(language, ability_cooldown.get(language, 10.0))
+	var mastery_level = get_mastery_level(language)
+	var reduction = clamp(0.05 * mastery_level, 0.0, 0.5)
+	ability_cooldown[language] = max(1.0, base_cooldown * (1.0 - reduction))
 
 func unlock_new_upgrades(language: ProgrammingLanguage, level: int):
 	"""Desbloqueia novas melhorias baseado no nível"""
@@ -215,7 +250,6 @@ func _perform_intelligent_type_check(target_position: Vector2) -> bool:
 	var type_compatibility = _check_interface_compatibility(target_position)
 	
 	if type_compatibility:
-		# Permite acesso se há compatibilidade de interface
 		mark_interaction_allowed(target_position)
 		print("Python: Duck Typing com verificação de interface bem-sucedida")
 		return true
@@ -223,9 +257,27 @@ func _perform_intelligent_type_check(target_position: Vector2) -> bool:
 
 func _perform_persistent_duck_typing(target_position: Vector2) -> bool:
 	"""Duck Typing persistente - permanece ativo por mais tempo"""
-	mark_interaction_allowed_persistent(target_position, 30.0)  # 30 segundos
+	mark_interaction_allowed_persistent(target_position, 30.0)
 	print("Python: Duck Typing persistente ativado (30s)")
 	return true
+
+func mark_interaction_allowed(position: Vector2):
+	if game_manager and game_manager.has_method("mark_interaction_allowed"):
+		game_manager.mark_interaction_allowed(position)
+	else:
+		print("[AbilitySystem] Interação permitida em ", position)
+
+func mark_interaction_allowed_persistent(position: Vector2, duration: float):
+	mark_interaction_allowed(position)
+	var timer = Timer.new()
+	timer.wait_time = duration
+	timer.one_shot = true
+	add_child(timer)
+	timer.timeout.connect(func():
+		print("[AbilitySystem] Janela de interação expirada em ", position)
+		timer.queue_free()
+	)
+	timer.start()
 
 func _use_advanced_java_garbage_collector(target_position: Vector2) -> bool:
 	"""Java - Garbage Collector Avançado com otimizações"""
@@ -379,8 +431,11 @@ func _create_async_callback_system(target_position: Vector2) -> bool:
 func _check_interface_compatibility(position: Vector2) -> bool:
 	"""Verifica compatibilidade de interface (Python)"""
 	# Implementação simplificada - verifica se objeto tem "métodos" necessários
+	var world_2d = _get_world_2d()
+	if world_2d == null:
+		return false
 	var query = PhysicsRayQueryParameters2D.create(position, position + Vector2(1, 0))
-	var result = get_world_2d().direct_space_state.intersect_ray(query)
+	var result = world_2d.direct_space_state.intersect_ray(query)
 	
 	# Simula verificação de interface
 	return result.size() > 0 and randi() % 3 != 0  # 66% chance de sucesso
@@ -579,7 +634,7 @@ func _execute_next_callback_in_chain():
 	if javascript_event_queue.size() >= 2:
 		var current_callback = javascript_event_queue.pop_front()
 		if player and player.has_method("force_move_to"):
-			player.force_move_to(current_callback.position)
+			player.force_move_to(current_callback.get("position", player.global_position))
 		
 		print("JavaScript: Callback da cadeia executado")
 
@@ -609,3 +664,65 @@ func reset_all_progress():
 		language_mastery[lang] = 0
 	available_upgrades.clear()
 	setup_upgrade_system()
+
+func _get_language_name(language: ProgrammingLanguage) -> String:
+	match language:
+		ProgrammingLanguage.PYTHON:
+			return "Python"
+		ProgrammingLanguage.JAVA:
+			return "Java"
+		ProgrammingLanguage.C_SHARP:
+			return "C#"
+		ProgrammingLanguage.JAVASCRIPT:
+			return "JavaScript"
+		_:
+			return "Unknown"
+
+func _create_adaptive_bridge(position: Vector2, bridge_type: String) -> Node2D:
+	var bridge = Node2D.new()
+	bridge.name = "AdaptiveBridge"
+	bridge.position = position
+
+	var sprite = Sprite2D.new()
+	sprite.texture = _create_bridge_texture()
+	bridge.add_child(sprite)
+
+	var collision = CollisionShape2D.new()
+	var rect_shape = RectangleShape2D.new()
+	rect_shape.size = Vector2(64, 8)
+	collision.shape = rect_shape
+	bridge.add_child(collision)
+
+	match bridge_type:
+		"floating_bridge":
+			sprite.modulate = Color(0.3, 0.7, 1.0)
+			rect_shape.size = Vector2(72, 6)
+		"suspension_bridge":
+			sprite.scale = Vector2(1.6, 1.0)
+			rect_shape.size = Vector2(110, 10)
+		"solid_bridge":
+			sprite.modulate = Color(0.8, 0.6, 0.4)
+
+	get_tree().get_root().add_child(bridge)
+
+	var lifespan = 20.0
+	if bridge_type == "suspension_bridge":
+		lifespan = 30.0
+	elif bridge_type == "floating_bridge":
+		lifespan = 15.0
+
+	if csharp_bridge_types.get("persistent", false):
+		lifespan = 0.0
+
+	if lifespan > 0.0:
+		var timer = Timer.new()
+		timer.wait_time = lifespan
+		timer.one_shot = true
+		bridge.add_child(timer)
+		timer.timeout.connect(func():
+			if bridge and bridge.is_inside_tree():
+				bridge.queue_free()
+		)
+		timer.start()
+
+	return bridge
