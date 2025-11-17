@@ -1,0 +1,8 @@
+{
+  "godotBinary": "godot4",
+  "defaultProjectPath": "/workspaces/TheCoreDescent/projeto_godot",
+  "projectsRoot": "/workspaces/TheCoreDescent",
+  "maxSearchDepth": 3,
+  "defaultSceneDirectory": "scenes",
+  "allowEditorLaunch": true
+}
