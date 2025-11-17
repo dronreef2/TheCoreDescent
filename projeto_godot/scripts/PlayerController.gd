@@ -5,6 +5,7 @@ class_name PlayerController
 @export var move_speed: float = 150.0
 @export var acceleration: float = 800.0
 @export var friction: float = 400.0
+@export var grid_size: int = 32
 
 # Configurações de habilidades
 @export var ability_key: Key = Key.KEY_F  # Tecla para usar habilidade
@@ -101,27 +102,19 @@ func setup_animations():
 	"""Configura sistema de animações"""
 	animation_player = AnimationPlayer.new()
 	add_child(animation_player)
-	animation_library = animation_player.get_animation_library(DEFAULT_ANIMATION_LIBRARY)
-	if animation_library == null:
-		animation_library = AnimationLibrary.new()
-		animation_player.add_animation_library(DEFAULT_ANIMATION_LIBRARY, animation_library)
+	_ensure_animation_library()
 	
 	# Criar animações básicas
 	create_basic_animations()
 
 func create_basic_animations():
 	"""Cria animações básicas do personagem"""
-	if animation_library == null:
-		animation_library = animation_player.get_animation_library(DEFAULT_ANIMATION_LIBRARY)
-		if animation_library == null:
-			animation_library = AnimationLibrary.new()
-			animation_player.add_animation_library(DEFAULT_ANIMATION_LIBRARY, animation_library)
-	else:
-		# Garantir que animações antigas não conflitem
-		if animation_library.has_animation("move"):
-			animation_library.remove_animation("move")
-		if animation_library.has_animation("execute"):
-			animation_library.remove_animation("execute")
+	_ensure_animation_library()
+	# Garantir que animações antigas não conflitem
+	if animation_library.has_animation("move"):
+		animation_library.remove_animation("move")
+	if animation_library.has_animation("execute"):
+		animation_library.remove_animation("execute")
 	# Animação de movimento
 	var move_anim = Animation.new()
 	move_anim.length = 0.3
@@ -147,6 +140,21 @@ func create_basic_animations():
 	execute_anim.track_insert_key(scale_track, 0.5, Vector2.ONE)
 	
 	animation_library.add_animation("execute", execute_anim)
+
+func _ensure_animation_library():
+	"""Garante que a AnimationLibrary padrão exista antes de registrar animações."""
+	if animation_player == null:
+		return
+	if animation_player.has_animation_library(DEFAULT_ANIMATION_LIBRARY):
+		animation_library = animation_player.get_animation_library(DEFAULT_ANIMATION_LIBRARY)
+		return
+	var new_library = AnimationLibrary.new()
+	var result = animation_player.add_animation_library(DEFAULT_ANIMATION_LIBRARY, new_library)
+	if result == OK:
+		animation_library = new_library
+	else:
+		# Em caso de falha, tentar recuperar biblioteca existente
+		animation_library = animation_player.get_animation_library(DEFAULT_ANIMATION_LIBRARY)
 
 func setup_input():
 	"""Configura sistema de input"""
