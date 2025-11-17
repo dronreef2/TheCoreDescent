@@ -263,16 +263,22 @@ func _use_javascript_callback(target_position: Vector2) -> bool:
 func _check_door_or_gate_interaction(position: Vector2) -> bool:
 	"""Verifica se há uma porta/gate que está bloqueando o jogador"""
 	# Implementação simplificada - em versão completa seria mais robusta
+	var world_2d = _get_world_2d()
+	if world_2d == null:
+		return false
 	var query = PhysicsRayQueryParameters2D.create(position, position + Vector2(1, 0))
 	query.collision_mask = 1  # Layer 1 - obstáculos
-	var result = get_world_2d().direct_space_state.intersect_ray(query)
+	var result = world_2d.direct_space_state.intersect_ray(query)
 	
 	return result.size() > 0
 
 func _check_gap_or_water(position: Vector2) -> bool:
 	"""Verifica se há um gap ou água que precisa de ponte"""
 	# Verifica se há vazio abaixo ou água no tile
-	var space_state = get_world_2d().direct_space_state
+	var world_2d = _get_world_2d()
+	if world_2d == null:
+		return false
+	var space_state = world_2d.direct_space_state
 	var query = PhysicsRayQueryParameters2D.create(
 		position, 
 		position + Vector2(0, 100)  # Olha 100 pixels para baixo
@@ -281,6 +287,15 @@ func _check_gap_or_water(position: Vector2) -> bool:
 	
 	var result = space_state.intersect_ray(query)
 	return result.is_empty()  # Se não há chão, há um gap
+
+func _get_world_2d() -> World2D:
+	"""Retorna referência segura ao World2D para nós que não herdam de Node2D"""
+	if player:
+		return player.get_world_2d()
+	var viewport = get_viewport()
+	if viewport:
+		return viewport.get_world_2d()
+	return null
 
 func _create_temporary_bridge(position: Vector2) -> Node2D:
 	"""Cria uma ponte temporária"""
