@@ -181,10 +181,9 @@ func setup_puzzles():
 	puzzles = [perceptron_puzzle, feedforward_puzzle, cnn_puzzle, rnn_puzzle, rl_puzzle]
 
 func create_perceptron_puzzle() -> Node2D:
-	"""
-	Puzzle 1: Perceptron Simples
-	Dificuldade: 6/10
-	Tempo: 10 minutos
+	# Puzzle 1: Perceptron Simples
+	# Dificuldade: 6/10
+	# Tempo: 10 minutos
 	
 	Objetivo: Implementar um perceptron básico para classificação binária
 	Conceitos: Neural Networks, Perceptron, Classification
@@ -247,10 +246,9 @@ func create_perceptron_puzzle() -> Node2D:
 	return puzzle
 
 func create_feedforward_puzzle() -> Node2D:
-	"""
-	Puzzle 2: Rede Neural Feedforward
-	Dificuldade: 7/10
-	Tempo: 15 minutos
+	# Puzzle 2: Rede Neural Feedforward
+	# Dificuldade: 7/10
+	# Tempo: 15 minutos
 	
 	Objetivo: Construir uma rede neural de múltiplas camadas
 	Conceitos: Deep Learning, Feedforward, Backpropagation
@@ -318,10 +316,9 @@ func create_feedforward_puzzle() -> Node2D:
 	return puzzle
 
 func create_cnn_puzzle() -> Node2D:
-	"""
-	Puzzle 3: CNN para Computer Vision
-	Dificuldade: 8/10
-	Tempo: 20 minutos
+	# Puzzle 3: CNN para Computer Vision
+	# Dificuldade: 8/10
+	# Tempo: 20 minutos
 	
 	Objetivo: Implementar CNN para classificação de imagens
 	Conceitos: Computer Vision, CNN, TensorFlow
@@ -390,10 +387,9 @@ func create_cnn_puzzle() -> Node2D:
 	return puzzle
 
 func create_rnn_puzzle() -> Node2D:
-	"""
-	Puzzle 4: RNN para NLP
-	Dificuldade: 9/10
-	Tempo: 20 minutos
+	# Puzzle 4: RNN para NLP
+	# Dificuldade: 9/10
+	# Tempo: 20 minutos
 	
 	Objetivo: Usar RNN/LSTM para análise de sentimentos
 	Conceitos: NLP, RNN, LSTM, PyTorch
@@ -461,10 +457,9 @@ func create_rnn_puzzle() -> Node2D:
 	return puzzle
 
 func create_rl_puzzle() -> Node2D:
-	"""
-	Puzzle 5: Reinforcement Learning
-	Dificuldade: 10/10
-	Tempo: 10 minutos
+	# Puzzle 5: Reinforcement Learning
+	# Dificuldade: 10/10
+	# Tempo: 10 minutos
 	
 	Objetivo: Criar um agente RL para jogo simples
 	Conceitos: Reinforcement Learning, Q-Learning, Policy Gradient
@@ -565,18 +560,18 @@ func show_intro():
 	for i, info in enumerate(puzzle_info, 1):
 		print("  {i}. " + str(info) + "")
 	
-	print(f"\n🎯 Objetivos:")
+	print("\n🎯 Objetivos:")
 	print("  • Compreender arquitetura de redes neurais")
 	print("  • Implementar algoritmos de aprendizado profundo")
 	print("  • Aplicar AI em problemas práticos") 
 	print("  • Dominar TensorFlow e PyTorch")
 	
-	print(f"\n🏆 Critérios de Sucesso:")
-	print(f"  • Pontuação Mínima: 80% (400/500 pontos)")
-	print(f"  • Taxa de Conclusão: 85% (pelo menos 4/5 puzzles)")
-	print(f"  • Verificação: Quiz prático com 10 questões")
+	print("\n🏆 Critérios de Sucesso:")
+	print("  • Pontuação Mínima: 80% (400/500 pontos)")
+	print("  • Taxa de Conclusão: 85% (pelo menos 4/5 puzzles)")
+	print("  • Verificação: Quiz prático com 10 questões")
 	
-	print(f"\n🚀 Pressione SPACE para começar!")
+	print("\n🚀 Pressione SPACE para começar!")
 
 func _input(event):
 	"""Processa input do jogador"""
@@ -629,7 +624,7 @@ func complete_level():
 	var puzzles_completed = current_puzzle_index
 	var success = final_score_percent >= 80 and puzzles_completed >= 4
 	
-	print(f"\n🎉 === LEVEL 14 CONCLUÍDO ===")
+	print("\n🎉 === LEVEL 14 CONCLUÍDO ===")
 	print("🏆 Score Final: {score}/{total_possible_score} (" + str(final_score_percent:.1f) + "%)")
 	print("🧩 Puzzles Completados: {puzzles_completed}/" + str(puzzles.size()) + "")
 	print("🎯 Conceitos Dominados: {concept_progress.value}/" + str(TARGET_CONCEPTS.size()) + "")
@@ -645,7 +640,7 @@ func complete_level():
 		show_final_quiz()
 	else:
 		print("❌ Tente novamente. Pontuação insuficiente.")
-		print(f"💡 Necessário: 80% score e 4/5 puzzles completos")
+		print("💡 Necessário: 80% score e 4/5 puzzles completos")
 	
 	# Limpar UI e mostrar resultado
 	show_completion_summary(final_score_percent, success)
@@ -665,7 +660,7 @@ func save_progress():
 
 func show_final_quiz():
 	"""Mostra quiz final sobre os conceitos aprendidos"""
-	print(f"\n📝 === QUIZ FINAL - AI & ML ===")
+	print("\n📝 === QUIZ FINAL - AI & ML ===")
 	print("Responda às 10 questões para validar o aprendizado:")
 	
 	var questions = [

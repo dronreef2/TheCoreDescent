@@ -153,7 +153,7 @@ func load_available_puzzles():
 		},
 		{
 			"name": "Duck Typing Dinâmico",
-			description": "Use duck typing para trabalhar com objetos flexíveis",
+			"description": "Use duck typing para trabalhar com objetos flexíveis",
 			"blocks_needed": ["DUCK_TYPE", "IF", "MOVE", "MOVE", "MOVE", "MOVE"],
 			"start_pos": Vector2i(2, 9),
 			"goal_pos": Vector2i(21, 9),
