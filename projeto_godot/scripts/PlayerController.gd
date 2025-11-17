@@ -7,7 +7,7 @@ class_name PlayerController
 @export var friction: float = 400.0
 
 # Configurações de habilidades
-@export var ability_key: Key = Key.F  # Tecla para usar habilidade
+@export var ability_key: Key = Key.KEY_F  # Tecla para usar habilidade
 
 # Referências
 var animation_player: AnimationPlayer
@@ -155,6 +155,12 @@ func _physics_process(delta):
 	handle_movement(delta)
 	process_logic_execution(delta)
 	update_visual_feedback()
+
+func process_logic_execution(delta):
+	"""Placeholder para manter o fluxo de execução lógica"""
+	# Atualmente não há lógica adicional por frame, mas o método
+	# foi mantido para evitar chamadas inválidas no _physics_process.
+	pass
 
 func update_state():
 	"""Atualiza estado do jogador baseado na situação"""
@@ -688,35 +694,35 @@ func _unhandled_input(event):
 		_use_current_ability()
 	
 	# Controles avançados (Shift + teclas)
-	if event.is_pressed() and event.keycode == Key.SHIFT:
+	if event.is_pressed() and event.keycode == Key.KEY_SHIFT:
 		# Shift + F: Alternar modo de habilidade
-		if Input.is_key_pressed(Key.F):
+		if Input.is_key_pressed(Key.KEY_F):
 			toggle_ability_mode()
 			get_viewport().set_input_as_handled()
 		
 		# Shift + M: Mostrar maestria
-		elif Input.is_key_pressed(Key.M):
+		elif Input.is_key_pressed(Key.KEY_M):
 			var gm = get_tree().get_root().get_node("Main").get_node("GameManager")
 			if gm and gm.has_method("show_mastery_overview"):
 				gm.show_mastery_overview()
 			get_viewport().set_input_as_handled()
 		
 		# Shift + U: Mostrar melhorias
-		elif Input.is_key_pressed(Key.U):
+		elif Input.is_key_pressed(Key.KEY_U):
 			var gm = get_tree().get_root().get_node("Main").get_node("GameManager")
 			if gm and gm.has_method("show_language_upgrades"):
 				gm.show_language_upgrades()
 			get_viewport().set_input_as_handled()
 		
 		# Shift + S: Mostrar estatísticas
-		elif Input.is_key_pressed(Key.S):
+		elif Input.is_key_pressed(Key.KEY_S):
 			var gm = get_tree().get_root().get_node("Main").get_node("GameManager")
 			if gm and gm.has_method("show_global_statistics"):
 				gm.show_global_statistics()
 			get_viewport().set_input_as_handled()
 		
 		# Shift + I: Mostrar info avançada
-		elif Input.is_key_pressed(Key.I):
+		elif Input.is_key_pressed(Key.KEY_I):
 			var gm = get_tree().get_root().get_node("Main").get_node("GameManager")
 			if gm and gm.has_method("show_advanced_language_info"):
 				gm.show_advanced_language_info()

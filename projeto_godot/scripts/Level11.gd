@@ -360,7 +360,7 @@ func setup_current_puzzle():
 
 func update_puzzle_info(puzzle_data: Dictionary):
     if puzzle_info_label:
-        puzzle_info_label.text = "Puzzle {current_puzzle_index + 1}/6\n{puzzle_data.title}\nObjetivo: " + str(target_moves) + " movimentos"
+        puzzle_info_label.text = "Puzzle " + str(current_puzzle_index + 1) + "/6\n" + puzzle_data.title + "\nObjetivo: " + str(target_moves) + " movimentos"
 
 func _on_level_start():
     print("🚀 Iniciando Nível 11: A Fábrica Cloud")
@@ -461,7 +461,7 @@ func _process(delta):
         if timer_label:
             var minutes = int(level_timer / 60)
             var seconds = int(level_timer) % 60
-            timer_label.text = "Tempo: {minutes:02d}:" + str(seconds:02d) + ""
+            timer_label.text = "Tempo: " + str(minutes).pad_zeros(2) + ":" + str(seconds).pad_zeros(2)
 
 func _input(event):
     if event.is_action_pressed("ui_cancel"):
