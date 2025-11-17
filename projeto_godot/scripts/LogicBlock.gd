@@ -257,7 +257,7 @@ class ConnectionPoint:
 	var is_active: bool = true
 	
 	func _ready():
-		update()
+		queue_redraw()
 	
 	func _draw():
 		var color = Color.GREEN if is_active else Color.RED
@@ -265,4 +265,4 @@ class ConnectionPoint:
 	
 	func set_active(active: bool):
 		is_active = active
-		update()
+		queue_redraw()
