@@ -154,7 +154,7 @@ func calculate_puzzle_score() -> Dictionary:
 	"""Calcula pontuação baseada em performance"""
 	var time_score = max(0, 100 - int(level_timer))
 	var moves_score = max(0, 100 - (moves_used * 10))
-	var efficiency_score = blocks_placed > 0 ? 100 - (abs(blocks_placed - target_moves) * 5) : 50
+	var efficiency_score = 100 - (abs(blocks_placed - target_moves) * 5) if blocks_placed > 0 else 50
 	
 	return {
 		"time": time_score,
