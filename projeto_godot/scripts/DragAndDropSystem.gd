@@ -267,16 +267,13 @@ func update_snap_preview_visual():
 		
 	if current_snap_position != Vector2i(-1, -1):
 		# Posição válida - mostrar verde
-		var world_pos = Vector2(current_snap_position.x * grid_size, current_snap_position.y * grid_size)
-		snap_preview.global_position = world_pos + Vector2(grid_size/2, grid_size/2)
-		snap_preview.modulate = Color(0, 1, 0, 0.5)
-	else:
-		# Posição inválida - mostrar vermelho
-		snap_preview.global_position = get_global_mouse_position()
-		else:
-		snap_preview.modulate = Color(1, 0, 0, 0.3)
-
-func hide_snap_preview():
+	var world_pos = Vector2(current_snap_position.x * grid_size, current_snap_position.y * grid_size)
+	snap_preview.global_position = world_pos + Vector2(grid_size/2, grid_size/2)
+	snap_preview.modulate = Color(0, 1, 0, 0.5)
+else:
+	# Posição inválida - mostrar vermelho
+	snap_preview.global_position = get_global_mouse_position()
+	snap_preview.modulate = Color(1, 0, 0, 0.3)func hide_snap_preview():
 	"""Esconde preview de snap"""
 	if snap_preview:
 		snap_preview.visible = false
