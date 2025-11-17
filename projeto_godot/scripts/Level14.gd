@@ -711,7 +711,10 @@ func show_completion_summary(score_percent: float, success: bool):
 	
 	var title = Label.new()
 	title.text = "Level 14: A Rede Neural - CONCLUÍDO!"
-	title.add_theme_color_override("font_color", success ? Color(0.2, 1.0, 0.2) : Color(1.0, 0.3, 0.3))
+	if success:
+		title.add_theme_color_override("font_color", Color(0.2, 1.0, 0.2))
+	else:
+		title.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
 	vbox.add_child(title)
 	
 	var score_label = Label.new()
@@ -723,13 +726,21 @@ func show_completion_summary(score_percent: float, success: bool):
 	vbox.add_child(concepts_label)
 	
 	var result_label = Label.new()
-	result_label.text = success ? "✅ SUCESSO - AI & ML MAESTRO!" : "❌ TENTE NOVAMENTE"
-	result_label.add_theme_color_override("font_color", success ? Color(0.2, 1.0, 0.2) : Color(1.0, 0.3, 0.3))
+	if success:
+		result_label.text = "✅ SUCESSO - AI & ML MAESTRO!"
+		result_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.2))
+	else:
+		result_label.text = "❌ TENTE NOVAMENTE"
+		result_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
 	vbox.add_child(result_label)
 	
 	var continue_button = Button.new()
-	continue_button.text = success ? "Próximo Nível" : "Tentar Novamente"
-	continue_button.pressed.connect(success ? _on_next_level : _on_retry_level)
+	if success:
+		continue_button.text = "Próximo Nível"
+		continue_button.pressed.connect(_on_next_level)
+	else:
+		continue_button.text = "Tentar Novamente"
+		continue_button.pressed.connect(_on_retry_level)
 	vbox.add_child(continue_button)
 
 # Event handlers para botões de teste dos puzzles

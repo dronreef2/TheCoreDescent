@@ -305,7 +305,10 @@ func create_level_button(level_data: Dictionary) -> Button:
 	var name_label = Label.new()
 	name_label.text = "Nível " + str(level_data.num)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.modulate = level_data.unlocked ? Color.WHITE : Color.GRAY
+	if level_data.unlocked:
+		name_label.modulate = Color.WHITE
+	else:
+		name_label.modulate = Color.GRAY
 	button_container.add_child(name_label)
 	
 	# Descrição
@@ -313,7 +316,10 @@ func create_level_button(level_data: Dictionary) -> Button:
 	desc_label.text = level_data.name
 	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	desc_label.scale = Vector2(0.9, 0.9)
-	desc_label.modulate = level_data.unlocked ? Color.CYAN : Color.GRAY
+	if level_data.unlocked:
+		desc_label.modulate = Color.CYAN
+	else:
+		desc_label.modulate = Color.GRAY
 	button_container.add_child(desc_label)
 	
 	# Status
@@ -321,7 +327,10 @@ func create_level_button(level_data: Dictionary) -> Button:
 	status_label.text = level_data.desc
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_label.scale = Vector2(0.7, 0.7)
-	status_label.modulate = level_data.unlocked ? Color.GREEN : Color.RED
+	if level_data.unlocked:
+		status_label.modulate = Color.GREEN
+	else:
+		status_label.modulate = Color.RED
 	button_container.add_child(status_label)
 	
 	# Configurar botão
