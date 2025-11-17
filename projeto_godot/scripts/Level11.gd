@@ -353,14 +353,14 @@ func setup_current_puzzle():
     if game_manager:
         game_manager.call("setup_puzzle_grid", start_position, goal_position, puzzle_data)
     
-    print(f"🎯 Configurando puzzle: {puzzle_data.title}")
-    print(f"📍 Posição inicial: {start_position}")
-    print(f"🎯 Posição objetivo: {goal_position}")
-    print(f"🎮 Movimentos alvo: {target_moves}")
+    print("🎯 Configurando puzzle: " + str(puzzle_data.title) + "")
+    print("📍 Posição inicial: " + str(start_position) + "")
+    print("🎯 Posição objetivo: " + str(goal_position) + "")
+    print("🎮 Movimentos alvo: " + str(target_moves) + "")
 
 func update_puzzle_info(puzzle_data: Dictionary):
     if puzzle_info_label:
-        puzzle_info_label.text = f"Puzzle {current_puzzle_index + 1}/6\n{puzzle_data.title}\nObjetivo: {target_moves} movimentos"
+        puzzle_info_label.text = "Puzzle {current_puzzle_index + 1}/6\n{puzzle_data.title}\nObjetivo: " + str(target_moves) + " movimentos"
 
 func _on_level_start():
     print("🚀 Iniciando Nível 11: A Fábrica Cloud")
@@ -369,7 +369,7 @@ func _on_level_start():
 func _on_move_made():
     moves_used += 1
     if move_counter:
-        move_counter.text = f"Movimentos: {moves_used}/{target_moves}"
+        move_counter.text = "Movimentos: {moves_used}/" + str(target_moves) + ""
     
     # Verificar se atingiu limite de movimentos
     if moves_used > target_moves and current_state == LevelState.PLAYING:
@@ -381,17 +381,17 @@ func _on_move_made():
 
 func _on_block_placed(block_data: Dictionary):
     blocks_placed += 1
-    print(f"🔧 Bloco colocado: {block_data.type} (Total: {blocks_placed})")
+    print("🔧 Bloco colocado: {block_data.type} (Total: " + str(blocks_placed) + ")")
 
 func _on_block_dropped(block_data: Dictionary, position: Vector2i):
-    print(f"📦 Bloco solto: {block_data.type} em {position}")
+    print("📦 Bloco solto: {block_data.type} em " + str(position) + "")
 
 func _on_block_removed(block_data: Dictionary):
     blocks_placed = max(0, blocks_placed - 1)
-    print(f"🗑️ Bloco removido: {block_data.type} (Total: {blocks_placed})")
+    print("🗑️ Bloco removido: {block_data.type} (Total: " + str(blocks_placed) + ")")
 
 func _on_puzzle_solved(puzzle_data: Dictionary):
-    print(f"✅ Puzzle resolvido: {puzzle_data.title}")
+    print("✅ Puzzle resolvido: " + str(puzzle_data.title) + "")
     
     # Emitir sinais específicos baseados no tipo de puzzle
     match puzzle_data.id:
@@ -461,7 +461,7 @@ func _process(delta):
         if timer_label:
             var minutes = int(level_timer / 60)
             var seconds = int(level_timer) % 60
-            timer_label.text = f"Tempo: {minutes:02d}:{seconds:02d}"
+            timer_label.text = "Tempo: {minutes:02d}:" + str(seconds:02d) + ""
 
 func _input(event):
     if event.is_action_pressed("ui_cancel"):
@@ -507,7 +507,7 @@ func on_ability_used(ability_name: String):
     ability_used_count[ability_name] += 1
     
     emit_signal("ability_activated", ability_name)
-    print(f"⚡ Habilidade utilizada: {ability_name}")
+    print("⚡ Habilidade utilizada: " + str(ability_name) + "")
 
 func get_performance_metrics() -> Dictionary:
     var efficiency = float(target_moves) / float(max(moves_used, 1)) * 100.0

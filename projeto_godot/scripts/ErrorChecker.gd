@@ -76,16 +76,16 @@ func _check_main_files(results: Dictionary) -> void:
 		var content = _read_file_content(file_path)
 		
 		if not content:
-			results["critical_errors"].append(f"Arquivo {file_name} não encontrado")
+			results["critical_errors"].append("Arquivo " + str(file_name) + " não encontrado")
 			results["files_with_errors"] += 1
 			continue
 		
 		# Verificar sintaxe básica
 		if not content.contains("extends"):
-			results["syntax_errors"].append(f"{file_name}: Não tem 'extends' declarado")
+			results["syntax_errors"].append("" + str(file_name) + ": Não tem 'extends' declarado")
 		
 		if not content.contains("class_name"):
-			results["warnings"].append(f"{file_name}: Recomendado declarar 'class_name'")
+			results["warnings"].append("" + str(file_name) + ": Recomendado declarar 'class_name'")
 
 func _check_mcp_system(results: Dictionary) -> void:
 	results["total_files_checked"] += 1
@@ -99,7 +99,7 @@ func _check_mcp_system(results: Dictionary) -> void:
 	for file_path in mcp_files:
 		var full_path = "/workspace/projeto_godot/" + file_path
 		if not _file_exists(full_path):
-			results["critical_errors"].append(f"Arquivo MCP {file_path} não encontrado")
+			results["critical_errors"].append("Arquivo MCP " + str(file_path) + " não encontrado")
 			results["files_with_errors"] += 1
 		else:
 			results["references"]["mcp_files"] = results["references"].get("mcp_files", []) + [file_path]
@@ -124,24 +124,24 @@ func _check_level_scripts(results: Dictionary) -> void:
 	for i in range(1, 15):  # Levels 1-14
 		results["total_files_checked"] += 1
 		
-		var file_path = f"/workspace/projeto_godot/scripts/Level{i}.gd"
+		var file_path = "/workspace/projeto_godot/scripts/Level" + str(i) + ".gd"
 		var content = _read_file_content(file_path)
 		
 		if not content:
-			results["critical_errors"].append(f"Level{i}.gd não encontrado")
+			results["critical_errors"].append("Level" + str(i) + ".gd não encontrado")
 			results["files_with_errors"] += 1
 			continue
 		
 		# Verificar estrutura básica
 		if not content.contains("func _ready()"):
-			results["warnings"].append(f"Level{i}.gd: Não tem função _ready()")
+			results["warnings"].append("Level" + str(i) + ".gd: Não tem função _ready()")
 		
 		if not content.contains("func"):
-			results["syntax_errors"].append(f"Level{i}.gd: Não tem funções definidas")
+			results["syntax_errors"].append("Level" + str(i) + ".gd: Não tem funções definidas")
 		
 		# Verificar se termina corretamente
 		if not content.contains("_exit_tree()"):
-			results["warnings"].append(f"Level{i}.gd: Não tem função _exit_tree() para cleanup")
+			results["warnings"].append("Level" + str(i) + ".gd: Não tem função _exit_tree() para cleanup")
 
 func _check_references(results: Dictionary) -> void:
 	# Verificar referências comuns que podem estar quebradas
@@ -162,7 +162,7 @@ func _check_references(results: Dictionary) -> void:
 			if content and ref in content:
 				ref_count += 1
 		
-		results["references"][ref] = f"Used in {ref_count} arquivos"
+		results["references"][ref] = "Used in " + str(ref_count) + " arquivos"
 
 func _read_file_content(file_path: String) -> String:
 	var file = FileAccess.open(file_path, FileAccess.READ)
@@ -177,35 +177,35 @@ func _file_exists(file_path: String) -> bool:
 
 func print_results(results: Dictionary) -> void:
 	print("=== RELATÓRIO DE VERIFICAÇÃO DE ERROS ===")
-	print(f"Total de arquivos verificados: {results['total_files_checked']}")
-	print(f"Arquivos com erros: {results['files_with_errors']}")
+	print("Total de arquivos verificados: " + str(results['total_files_checked']) + "")
+	print("Arquivos com erros: " + str(results['files_with_errors']) + "")
 	
 	if results["critical_errors"]:
 		print("\n🚨 ERROS CRÍTICOS:")
 		for error in results["critical_errors"]:
-			print(f"  - {error}")
+			print("  - " + str(error) + "")
 	
 	if results["config_errors"]:
 		print("\n⚙️ ERROS DE CONFIGURAÇÃO:")
 		for error in results["config_errors"]:
-			print(f"  - {error}")
+			print("  - " + str(error) + "")
 	
 	if results["syntax_errors"]:
 		print("\n📝 ERROS DE SINTAXE:")
 		for error in results["syntax_errors"]:
-			print(f"  - {error}")
+			print("  - " + str(error) + "")
 	
 	if results["warnings"]:
 		print("\n⚠️ AVISOS:")
 		for warning in results["warnings"]:
-			print(f"  - {warning}")
+			print("  - " + str(warning) + "")
 	
 	print("\n📊 REFERÊNCIAS:")
 	for key, value in results["references"]:
-		print(f"  - {key}: {value}")
+		print("  - {key}: " + str(value) + "")
 	
 	# Resumo
 	if results["files_with_errors"] == 0:
 		print("\n✅ NENHUM ERRO CRÍTICO ENCONTRADO!")
 	else:
-		print(f"\n❌ {results['files_with_errors']} ARQUIVOS COM PROBLEMAS")
+		print("\n❌ " + str(results['files_with_errors']) + " ARQUIVOS COM PROBLEMAS")
