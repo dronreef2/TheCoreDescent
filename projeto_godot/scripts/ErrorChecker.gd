@@ -197,14 +197,12 @@ func print_results(results: Dictionary) -> void:
 	
 	if results["warnings"]:
 		print("\n⚠️ AVISOS:")
-		for warning in results["warnings"]:
-			print("  - " + str(warning) + "")
+	for warning in results["warnings"]:
+		print("  - " + str(warning) + "")
 	
 	print("\n📊 REFERÊNCIAS:")
-	for key, value in results["references"]:
-		print("  - {key}: " + str(value) + "")
-	
-	# Resumo
+	for key in results["references"].keys():
+		print("  - " + str(key) + ": " + str(results["references"][key]) + "")	# Resumo
 	if results["files_with_errors"] == 0:
 		print("\n✅ NENHUM ERRO CRÍTICO ENCONTRADO!")
 	else:
