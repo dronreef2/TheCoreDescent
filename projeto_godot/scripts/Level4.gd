@@ -915,7 +915,7 @@ func create_gem(grid_pos: Vector2i, requirements: Dictionary):
 	# Cor baseada nos requisitos
 	var has_complex_req = any(requirements.values())
 	if has_complex_req:
-		sprite.modulate = Color.GOLD.with_alpha(0.8)  # Dourado para requisitos especiais
+		sprite.modulate = Color(1, 0.84, 0, 0.8)  # Dourado para requisitos especiais
 	else:
 		sprite.modulate = Color.GOLD
 	
@@ -1089,7 +1089,7 @@ func show_puzzle_completion(score: Dictionary):
 	completion_panel.anchor_top = 0.3
 	completion_panel.anchor_right = 0.7
 	completion_panel.anchor_bottom = 0.7
-	completion_panel.modulate = Color.BLACK.with_alpha(0.8)
+	completion_panel.modulate = Color(0, 0, 0, 0.8)
 	add_child(completion_panel)
 	
 	# Título

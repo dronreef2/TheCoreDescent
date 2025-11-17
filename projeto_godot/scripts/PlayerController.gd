@@ -139,13 +139,13 @@ func setup_effects():
 	# Trail effect para mostrar caminho
 	trail_effect = Line2D.new()
 	trail_effect.width = 2.0
-	trail_effect.default_color = Color.CYAN.with_alpha(0.5)
+	trail_effect.default_color = Color(0, 1, 1, 0.5)
 	trail_effect.z_index = -1  # Atrás do personagem
 	add_child(trail_effect)
 	
 	# Highlight sprite para indicar bloco ativo
 	highlight_sprite = Sprite2D.new()
-	highlight_sprite.modulate = Color.YELLOW.with_alpha(0.3)
+	highlight_sprite.modulate = Color(1, 1, 0, 0.3)
 	highlight_sprite.visible = false
 	add_child(highlight_sprite)
 

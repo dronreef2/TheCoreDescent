@@ -429,7 +429,7 @@ func create_gem(grid_pos: Vector2i, requires_pointer: bool = false, requires_cha
 	var sprite = Sprite2D.new()
 	sprite.texture = load("res://assets/items/gem.png")
 	if requires_pointer or requires_chain:
-		sprite.modulate = Color.GOLD.with_alpha(0.7)  # Transparente se protegida
+		sprite.modulate = Color(1, 0.84, 0, 0.7)  # Transparente se protegida
 	else:
 		sprite.modulate = Color.GOLD
 	gem.add_child(sprite)
@@ -559,7 +559,7 @@ func show_puzzle_completion(score: Dictionary):
 	completion_panel.anchor_top = 0.3
 	completion_panel.anchor_right = 0.7
 	completion_panel.anchor_bottom = 0.7
-	completion_panel.modulate = Color.BLACK.with_alpha(0.8)
+	completion_panel.modulate = Color(0, 0, 0, 0.8)
 	add_child(completion_panel)
 	
 	# Título

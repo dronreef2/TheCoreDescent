@@ -40,7 +40,7 @@ func setup_visual_feedback():
 	"""Configura elementos visuais para feedback"""
 	# Criar preview de snap
 	snap_preview = Sprite2D.new()
-	snap_preview.modulate = Color.GREEN.with_alpha(0.3)
+	snap_preview.modulate = Color(0, 1, 0, 0.3)
 	snap_preview.z_index = 50
 	snap_preview.visible = false
 	snap_preview.texture = create_preview_texture()
@@ -49,7 +49,7 @@ func setup_visual_feedback():
 func create_preview_texture() -> Texture2D:
 	"""Cria textura de preview programaticamente"""
 	var image = Image.create(32, 32, false, Image.FORMAT_RGBA8)
-	image.fill(Color.GREEN.with_alpha(0.5))
+	image.fill(Color(0, 1, 0, 0.5))
 	
 	# Adicionar borda
 	for x in range(32):
@@ -269,11 +269,12 @@ func update_snap_preview_visual():
 		# Posição válida - mostrar verde
 		var world_pos = Vector2(current_snap_position.x * grid_size, current_snap_position.y * grid_size)
 		snap_preview.global_position = world_pos + Vector2(grid_size/2, grid_size/2)
-		snap_preview.modulate = Color.GREEN.with_alpha(0.5)
+		snap_preview.modulate = Color(0, 1, 0, 0.5)
 	else:
 		# Posição inválida - mostrar vermelho
 		snap_preview.global_position = get_global_mouse_position()
-		snap_preview.modulate = Color.RED.with_alpha(0.3)
+		else:
+		snap_preview.modulate = Color(1, 0, 0, 0.3)
 
 func hide_snap_preview():
 	"""Esconde preview de snap"""
