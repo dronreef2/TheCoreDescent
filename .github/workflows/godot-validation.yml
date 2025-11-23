@@ -1,0 +1,207 @@
+name: Godot Project Validation
+
+on:
+  push:
+    branches: [ main, develop, copilot/** ]
+    paths:
+      - 'projeto_godot/**'
+      - 'godot-mcp-server/**'
+      - 'scripts/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'projeto_godot/**'
+      - 'godot-mcp-server/**'
+      - 'scripts/**'
+  workflow_dispatch:
+
+jobs:
+  validate-godot-project:
+    name: Validate GDScript Files
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Run GDScript validation
+      run: |
+        python3 scripts/validate_godot_project.py projeto_godot
+    
+    - name: Upload validation report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: validation-report
+        path: scripts/validation_report.json
+        retention-days: 30
+    
+    - name: Check validation results
+      run: |
+        # Read the validation report and check for errors
+        python3 -c "
+        import json
+        import sys
+        
+        with open('scripts/validation_report.json', 'r') as f:
+            report = json.load(f)
+        
+        print(f'Validation Summary:')
+        print(f'  Total Files: {report[\"total_files\"]}')
+        print(f'  Scripts: {report[\"scripts\"]}')
+        print(f'  Scenes: {report[\"scenes\"]}')
+        print(f'  Classes: {report[\"classes\"]}')
+        print(f'  Errors: {report[\"errors\"]}')
+        print(f'  Warnings: {report[\"warnings\"]}')
+        print(f'  Status: {report[\"status\"]}')
+        
+        if report['errors'] > 0:
+            print('\nValidation FAILED with errors!')
+            sys.exit(1)
+        else:
+            print('\nValidation PASSED!')
+            sys.exit(0)
+        "
+
+  test-mcp-integration:
+    name: Test MCP Integration
+    runs-on: ubuntu-latest
+    needs: validate-godot-project
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: godot-mcp-server/package-lock.json
+    
+    - name: Install MCP server dependencies
+      run: |
+        cd godot-mcp-server
+        npm ci
+    
+    - name: Build MCP server
+      run: |
+        cd godot-mcp-server
+        npm run build
+    
+    - name: Run integration tests
+      run: |
+        python3 scripts/test_godot_mcp_integration.py
+    
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: integration-test-results
+        path: scripts/integration_test_results.json
+        retention-days: 30
+    
+    - name: Check integration test results
+      run: |
+        python3 -c "
+        import json
+        import sys
+        
+        with open('scripts/integration_test_results.json', 'r') as f:
+            results = json.load(f)
+        
+        print(f'Integration Test Summary:')
+        print(f'  Total Tests: {results[\"tests_total\"]}')
+        print(f'  Passed: {results[\"tests_passed\"]}')
+        print(f'  Failed: {results[\"tests_failed\"]}')
+        
+        if results['tests_failed'] > 0:
+            print('\nIntegration tests FAILED!')
+            for detail in results['details']:
+                if detail['status'] != 'PASSED':
+                    print(f'  ❌ {detail[\"name\"]}: {detail[\"message\"]}')
+            sys.exit(1)
+        else:
+            print('\nAll integration tests PASSED!')
+            sys.exit(0)
+        "
+
+  code-quality:
+    name: Check Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Check for tabs in GDScript files
+      run: |
+        # Check if any .gd files contain tabs
+        if grep -r $'\t' projeto_godot --include="*.gd"; then
+          echo "❌ Found tabs in GDScript files! Please use spaces (4 spaces per indent)"
+          echo "Run: python3 scripts/fix_tabs.py projeto_godot"
+          exit 1
+        else
+          echo "✅ All GDScript files use spaces correctly"
+        fi
+    
+    - name: Check file structure
+      run: |
+        # Verify expected directories exist
+        for dir in projeto_godot/scripts projeto_godot/scenes projeto_godot/addons godot-mcp-server/src godot-mcp-server/build; do
+          if [ ! -d "$dir" ]; then
+            echo "❌ Expected directory not found: $dir"
+            exit 1
+          fi
+        done
+        echo "✅ Project structure is correct"
+    
+    - name: Count level files
+      run: |
+        level_count=$(find projeto_godot/scripts -name "Level*.gd" -not -name "*_optimized.gd" | wc -l)
+        echo "Found $level_count level files"
+        if [ "$level_count" -lt 14 ]; then
+          echo "❌ Expected at least 14 level files, found $level_count"
+          exit 1
+        fi
+        echo "✅ All level files are present"
+
+  summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-godot-project, test-mcp-integration, code-quality]
+    if: always()
+    
+    steps:
+    - name: Check job results
+      run: |
+        echo "# Godot Project Validation Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Job Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- GDScript Validation: ${{ needs.validate-godot-project.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- MCP Integration Tests: ${{ needs.test-mcp-integration.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Code Quality Checks: ${{ needs.code-quality.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ needs.validate-godot-project.result }}" == "success" ] && \
+           [ "${{ needs.test-mcp-integration.result }}" == "success" ] && \
+           [ "${{ needs.code-quality.result }}" == "success" ]; then
+          echo "## ✅ All Checks Passed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The project is validated and ready for deployment." >> $GITHUB_STEP_SUMMARY
+        else
+          echo "## ❌ Some Checks Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Please review the failed jobs and fix the issues." >> $GITHUB_STEP_SUMMARY
+        fi
