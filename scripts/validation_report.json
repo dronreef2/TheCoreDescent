@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "total_files": 49,
+  "scripts": 47,
+  "scenes": 2,
+  "classes": 43,
+  "errors": 0,
+  "warnings": 0,
+  "info": 2,
+  "error_list": [],
+  "warning_list": [],
+  "info_list": [
+    "\u2713 Main scene found: scenes/Main.tscn",
+    "\u2713 Project configuration found"
+  ]
+}
