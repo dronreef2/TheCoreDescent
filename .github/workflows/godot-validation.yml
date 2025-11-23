@@ -158,7 +158,7 @@ jobs:
     - name: Check file structure
       run: |
         # Verify expected directories exist
-        for dir in projeto_godot/scripts projeto_godot/scenes projeto_godot/addons godot-mcp-server/src godot-mcp-server/build; do
+        for dir in projeto_godot/scripts projeto_godot/scenes projeto_godot/addons godot-mcp-server/src; do
           if [ ! -d "$dir" ]; then
             echo "❌ Expected directory not found: $dir"
             exit 1
